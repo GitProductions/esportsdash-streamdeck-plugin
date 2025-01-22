@@ -130,7 +130,12 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
 
         try {
             await this.setInitialScore(team, ev.action);
-            await this.setTeamIcon(team, ev.action);
+			
+			if (ev.payload.settings.includeLogo) {
+            	await this.setTeamIcon(team, ev.action);
+			} else {
+				await ev.action.setImage('');  // Clear the image
+			}
         } catch (error) {
             streamDeck.logger.error(`Failed to initialize button for team ${team}:`, error);
         }
