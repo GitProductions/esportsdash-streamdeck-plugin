@@ -4,7 +4,7 @@ import { EventEmitter } from 'events';
 @action({ UUID: "com.esportsdash.esportsdash-controller.adjustscore" })
 export class AdjustScore extends SingletonAction<CounterSettings> {
     private static instances: AdjustScore[] = [];
-    private static eventEmitter = new EventEmitter();
+    public static eventEmitter = new EventEmitter();
     private team?: string;
     private pollingInterval?: NodeJS.Timeout;
 
@@ -41,6 +41,9 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
             action.setTitle('Error');
         }
     }
+
+
+	// we should check to make sure its different before wasting resources on changing it.. so lets save a 'previous' or reference..
 
 	private async fetchAndUpdateScore(ev: WillAppearEvent<CounterSettings>): Promise<void> {
 		const { team } = ev.payload.settings;
@@ -98,7 +101,7 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
         });
 
         // Start polling for score updates every 5 seconds
-        this.pollingInterval = setInterval(() => this.fetchAndUpdateScore(ev), 5000);
+        this.pollingInterval = setInterval(() => this.fetchAndUpdateScore(ev), 25000);
     }
 
     override async onKeyDown(ev: KeyDownEvent<CounterSettings>): Promise<void> {

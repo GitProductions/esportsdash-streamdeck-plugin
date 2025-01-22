@@ -10,7 +10,7 @@
 	},
 	"include": [
 		"src/**/*.ts"
-	],
+, "src/websocket/socket.ts"	],
 	"exclude": [
 		"node_modules"
 	]

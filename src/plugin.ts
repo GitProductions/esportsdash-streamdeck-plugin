@@ -1,13 +1,20 @@
-import streamDeck, { LogLevel } from "@elgato/streamdeck";
+import streamDeck, { LogLevel } from '@elgato/streamdeck';
+import { AdjustScore } from './actions/adjust-score';
+import socket from './websocket/socket';  // Import the singleton socket instance
 
-import { AdjustScore } from "./actions/adjust-score";
-
-// We can enable "trace" logging so that all messages between the Stream Deck, and the plugin are recorded. When storing sensitive information
+// Set up logging for debugging
 streamDeck.logger.setLevel(LogLevel.TRACE);
 
-// Register the increment action.
+// Example usage of the socket in `plugin.ts`
+socket.emit('joinRoom', { room: 'scoreUpdates' });
+
+socket.on('scoreUpdate', (data) => {
+    streamDeck.logger.info('Received score update:', data);
+    console.log('Received score update:', data);
+});
+
+// Register the increment action
 streamDeck.actions.registerAction(new AdjustScore());
 
-
-// Finally, connect to the Stream Deck.
+// Finally, connect to the Stream Deck
 streamDeck.connect();
