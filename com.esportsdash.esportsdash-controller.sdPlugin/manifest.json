@@ -1,38 +1,21 @@
 {
 	"Name": "EsportsDash Controller",
-	"Version": "0.1.0.0",
+	"Version": "0.1.0.1",
 	"Author": "EsportsDash",
 	"Actions": [
 		{
-			"Name": "Increment Score",
-			"UUID": "com.esportsdash.esportsdash-controller.increment",
-			"Icon": "imgs/actions/counter/icon",
-			"Tooltip": "Increments the score by one.",
-			"PropertyInspectorPath": "ui/increment-counter.html",
+			"Name": "Adjust Score",
+			"UUID": "com.esportsdash.esportsdash-controller.adjustscore",
+			"Icon": "imgs/actions/counter/key",
+			"Tooltip": "Adjust the by incrementing or decrementing by one.",
+			"PropertyInspectorPath": "ui/adjust-score.html",
 			"Controllers": [
 				"Keypad"
 			],
 			"States": [
 				{
 					"Image": "imgs/actions/counter/key",
-					"TitleAlignment": "middle"
-				}
-			]
-		},
-
-		{
-			"Name": "Decrement Score",
-			"UUID": "com.esportsdash.esportsdash-controller.decrement",
-			"Icon": "imgs/actions/counter/icon",
-			"Tooltip": "Decrements the score by one.",
-			"PropertyInspectorPath": "ui/increment-counter.html",
-			"Controllers": [
-				"Keypad"
-			],
-			"States": [
-				{
-					"Image": "imgs/actions/counter/key",
-					"TitleAlignment": "middle"
+					"TitleAlignment": "bottom"
 				}
 			]
 		}

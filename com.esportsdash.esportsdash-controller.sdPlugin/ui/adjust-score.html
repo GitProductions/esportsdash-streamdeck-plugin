@@ -2,12 +2,19 @@
 <html>
 
 <head lang="en">
-    <title>Increment Counter Settings</title>
+    <title>Adjust Score Settings</title>
     <meta charset="utf-8" />
     <script src="https://sdpi-components.dev/releases/v3/sdpi-components.js"></script>
 </head>
 
 <body>
+
+    <!-- checkbox to include teamlogo -->
+    <sdpi-item label="Include Logo">
+     <sdpi-checkbox setting="includeLogo"></sdpi-checkbox>
+    </sdpi-item>
+            <!-- <sdpi-checkbox setting="includeTeamLo?go" label="Include Team Logo"></sdpi-checkbox> -->
+        
     <sdpi-item label="Select">
         <sdpi-select setting="operation" placeholder="Increase or Decrease?">
             <option value="increment">Increment</option>

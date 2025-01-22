@@ -1,14 +1,12 @@
 import streamDeck, { LogLevel } from "@elgato/streamdeck";
 
-import { IncrementScore } from "./actions/increment-counter";
-import { DecrementScore } from "./actions/decrement-score";
+import { AdjustScore } from "./actions/adjust-score";
 
 // We can enable "trace" logging so that all messages between the Stream Deck, and the plugin are recorded. When storing sensitive information
 streamDeck.logger.setLevel(LogLevel.TRACE);
 
 // Register the increment action.
-streamDeck.actions.registerAction(new IncrementScore());
-streamDeck.actions.registerAction(new DecrementScore());
+streamDeck.actions.registerAction(new AdjustScore());
 
 
 // Finally, connect to the Stream Deck.
