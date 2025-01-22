@@ -33,7 +33,11 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
     private async setInitialScore(team: string, action: any): Promise<void> {
         try {
             const response = await fetch(`http://localhost:8080/getValue?path=teams.team${team}.teamScore`);
-            const score = await response.json() as number;
+            let score = await response.json() as number;
+
+			if (score === undefined) {
+				score = 0;
+			}
             action.setTitle(`${score}`);
             AdjustScore.eventEmitter.emit(`scoreUpdated:${team}`, score);
         } catch (error) {
@@ -96,12 +100,26 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
             await ev.action.setImage('imgs/actions/counter/icon@2x.png');
         }
 
+
+
+		// -------------- Listen for score and logo updates ----------------------------- //
+		// Registering events to listen for score and Logo updates needed for the button  //
+		// ----------------------------------------------------------------------------- //
         AdjustScore.eventEmitter.on(`scoreUpdated:${team}`, (score: number) => {
             ev.action.setTitle(`${score}`);
         });
 
+		AdjustScore.eventEmitter.on(`logoUpdated:${team}`, async (logoUrl: string) => {
+			if (includeLogo) {
+				const base64Image = await this._fetchImageAsBase64(logoUrl.trim());
+				await ev.action.setImage(base64Image);
+			}
+		});
+
+
+
         // Start polling for score updates every 5 seconds
-        this.pollingInterval = setInterval(() => this.fetchAndUpdateScore(ev), 25000);
+        // this.pollingInterval = setInterval(() => this.fetchAndUpdateScore(ev), 25000);
     }
 
     override async onKeyDown(ev: KeyDownEvent<CounterSettings>): Promise<void> {
