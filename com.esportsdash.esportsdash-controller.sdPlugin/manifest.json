@@ -1,0 +1,64 @@
+{
+	"Name": "EsportsDash Controller",
+	"Version": "0.1.0.0",
+	"Author": "EsportsDash",
+	"Actions": [
+		{
+			"Name": "Increment Score",
+			"UUID": "com.esportsdash.esportsdash-controller.increment",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Increments the score by one.",
+			"PropertyInspectorPath": "ui/increment-counter.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+
+		{
+			"Name": "Decrement Score",
+			"UUID": "com.esportsdash.esportsdash-controller.decrement",
+			"Icon": "imgs/actions/counter/icon",
+			"Tooltip": "Decrements the score by one.",
+			"PropertyInspectorPath": "ui/increment-counter.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	],
+	"Category": "EsportsDash Controller",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Helps users control their esports dash",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 2,
+	"Software": {
+		"MinimumVersion": "6.4"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "10.15"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.esportsdash.esportsdash-controller"
+}
