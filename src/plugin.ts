@@ -1,5 +1,8 @@
 import streamDeck, { LogLevel } from '@elgato/streamdeck';
 import { AdjustScore } from './actions/adjust-score';
+import { ResetMatch } from './actions/reset-match';
+import { SwapTeams } from './actions/swap-teams';
+import { WindowControls } from './actions/window-controls';
 import socket from './websocket/socket';  // Import the singleton socket instance
 
 // Set up logging for debugging
@@ -7,6 +10,9 @@ streamDeck.logger.setLevel(LogLevel.TRACE);
 
 // Register the increment action
 streamDeck.actions.registerAction(new AdjustScore());
+streamDeck.actions.registerAction(new ResetMatch());
+streamDeck.actions.registerAction(new SwapTeams());
+streamDeck.actions.registerAction(new WindowControls());
 
 
 socket.on('scoreUpdate', (data) => {
@@ -35,6 +41,18 @@ socket.on('updateMatchData', (data: MatchUpdate) => {
             if (typeof teamData.teamLogoUrl !== 'undefined') {
                 AdjustScore.eventEmitter.emit(`logoUpdated:${teamData.teamNumber}`, 
                     teamData.teamLogoUrl
+                );
+            }
+
+            // if (typeof teamData.teamColor !== 'undefined') {
+            //     AdjustScore.eventEmitter.emit(`colorUpdated:${teamData.teamNumber}`, 
+            //         teamData.teamColor
+            //     );
+            // }
+
+            if (typeof teamData.teamName !== 'undefined') {
+                AdjustScore.eventEmitter.emit(`nameUpdated:${teamData.teamNumber}`, 
+                    teamData.teamName
                 );
             }
         });

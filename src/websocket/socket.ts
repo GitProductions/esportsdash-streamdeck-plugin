@@ -9,12 +9,12 @@ class SocketService {
     public static getInstance(): Socket {
         if (!SocketService.instance) {
             SocketService.instance = io('http://localhost:8080', {
-                path: '/socket.io' // Ensure this matches the server's WebSocket path
+                path: '/socket.io'
             });
             SocketService.instance.on('connect', () => {
                 streamDeck.logger.info('Socket connected:', SocketService.instance.id);
 
-                // Example usage of the socket in `plugin.ts`
+                // not being utilized as expected yet..
                 SocketService.instance.emit('joinRoom', { room: 'scoreUpdates', source: 'streamDeck' });
 
             });

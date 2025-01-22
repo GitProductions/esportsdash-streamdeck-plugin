@@ -9,10 +9,26 @@
 
 <body>
 
-    <sdpi-item label="Include Logo">
-     <sdpi-checkbox setting="includeLogo"></sdpi-checkbox>
+    <sdpi-item label="Display Options">
+        <sdpi-checkbox-list setting="includeOptions" columns="2">
+            <option value="includeLogo">Include Logo</option>
+            <option value="includeScore">Include Score</option>
+            <option value="includeName">Include Name</option>
+        </sdpi-checkbox-list>
     </sdpi-item>
-        
+
+    <!-- <sdpi-item label="Include Logo">
+        <sdpi-checkbox setting="includeLogo"></sdpi-checkbox>
+    </sdpi-item>
+
+    <sdpi-item label="Include Score">
+        <sdpi-checkbox setting="includeScore"></sdpi-checkbox>
+    </sdpi-item>
+
+    <sdpi-item label="Include Name">
+        <sdpi-checkbox setting="includeName"></sdpi-checkbox>
+    </sdpi-item> -->
+
     <sdpi-item label="Select">
         <sdpi-select setting="operation" placeholder="Increase or Decrease?">
             <option value="increment">Increment</option>
