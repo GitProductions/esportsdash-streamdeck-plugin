@@ -3,25 +3,31 @@ import { AdjustScore } from './actions/adjust-score';
 import { ResetMatch } from './actions/reset-match';
 import { SwapTeams } from './actions/swap-teams';
 import { WindowControls } from './actions/window-controls';
+import { UpdateMatch } from './actions/update-match';
 import socket from './websocket/socket';  // Import the singleton socket instance
 
-// Set up logging for debugging
-streamDeck.logger.setLevel(LogLevel.TRACE);
+// Set up logging for debugging - trace for everything
+streamDeck.logger.setLevel(LogLevel.INFO);
 
 // Register the increment action
 streamDeck.actions.registerAction(new AdjustScore());
 streamDeck.actions.registerAction(new ResetMatch());
 streamDeck.actions.registerAction(new SwapTeams());
+streamDeck.actions.registerAction(new UpdateMatch());
 streamDeck.actions.registerAction(new WindowControls());
 
 
-socket.on('scoreUpdate', (data) => {
-    streamDeck.logger.info('Received score update:', data);
-    console.log('Received score update:', data);
 
-    // emit event to adjustScore action
-    // AdjustScore.eventEmitter.emit(`scoreUpdated:${data.team}`, data.teamScore);
-});
+
+// ideas..
+////// Regarding swapping teams or resetting match info..
+// put a 'border' around team logo if the team score has been updated on SD but not actually pushed update to the dashboard
+// this would allow the user to know when they need to force an update?
+// this example also useful for the swap teams.. by default in dashboard it 'swaps' them.. 
+// in the streamdeck the user wont know this since it only shows us actual live updates available.. and this hasnt been updated yet
+// so the user has to use 'update match' action to make this happen and a border here would allow them to know.. ?
+//////
+
 socket.on('updateMatchData', (data: MatchUpdate) => {
     streamDeck.logger.info('Received match data update:', data);
     
@@ -58,9 +64,19 @@ socket.on('updateMatchData', (data: MatchUpdate) => {
         });
     }
 
+
+
+
     socket.emit('roundTrip', { 
         received: true,
         timestamp: Date.now() 
+    });
+
+
+    socket.on('scoreUpdate', (data) => {
+        streamDeck.logger.info('Received score update:', data);
+        console.log('Received score update:', data);
+    
     });
 });
 
