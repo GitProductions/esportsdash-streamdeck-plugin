@@ -18,7 +18,76 @@
 					"TitleAlignment": "bottom"
 				}
 			]
+		},
+		{
+			"Name": "Reset Match",
+			"UUID": "com.esportsdash.esportsdash-controller.resetmatch",
+			"Icon": "imgs/actions/counter/key",
+			"Tooltip": "Reset the Match Data",
+			"PropertyInspectorPath": "ui/reset-match.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+
+		{
+			"Name": "Update Match",
+			"UUID": "com.esportsdash.esportsdash-controller.updatematch",
+			"Icon": "imgs/actions/counter/key",
+			"Tooltip": "Update the Match Data",
+			"PropertyInspectorPath": "ui/update-match.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+
+
+
+		{
+			"Name": "Swap Teams",
+			"UUID": "com.esportsdash.esportsdash-controller.swapteams",
+			"Icon": "imgs/actions/counter/key",
+			"Tooltip": "Swap the Teams",
+			"PropertyInspectorPath": "ui/swap-teams.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Window Controls",
+			"UUID": "com.esportsdash.esportsdash-controller.windowcontrols",
+			"Icon": "imgs/actions/counter/key",
+			"Tooltip": "Window Controls - Esports Dash",
+			"PropertyInspectorPath": "ui/window-controls.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/key",
+					"TitleAlignment": "middle"
+				}
+			]
 		}
+
 	],
 	"Category": "EsportsDash Controller",
 	"CategoryIcon": "imgs/plugin/category-icon",
