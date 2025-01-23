@@ -150,6 +150,9 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
             await ev.action.setSettings(settings);
             AdjustScore.eventEmitter.emit(`scoreUpdated:${settings.team}`, score);
         } catch (error) {
+            // show alert
+
+            ev.action.showAlert();
             streamDeck.logger.error(`Error updating score for team ${settings.team}:`, error);
         }
     }

@@ -15,7 +15,10 @@ class SocketService {
                 streamDeck.logger.info('Socket connected:', SocketService.instance.id);
 
                 // not being utilized as expected yet..
-                SocketService.instance.emit('joinRoom', { room: 'scoreUpdates', source: 'streamDeck' });
+                SocketService.instance.emit('joinRoom', {
+                    room: 'matchData',
+                    source: 'streamDeck'
+                });
 
             });
             SocketService.instance.on('disconnect', () => {
