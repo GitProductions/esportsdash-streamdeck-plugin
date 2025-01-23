@@ -14,7 +14,7 @@
 			],
 			"States": [
 				{
-					"Image": "imgs/actions/counter/key",
+					"Image": "imgs/actions/counter/button",
 					"TitleAlignment": "bottom"
 				}
 			]
@@ -30,7 +30,7 @@
 			],
 			"States": [
 				{
-					"Image": "imgs/actions/counter/key",
+					"Image": "imgs/actions/counter/button",
 					"TitleAlignment": "middle"
 				}
 			]
@@ -47,7 +47,7 @@
 			],
 			"States": [
 				{
-					"Image": "imgs/actions/counter/key",
+					"Image": "imgs/actions/counter/button",
 					"TitleAlignment": "middle"
 				}
 			]
@@ -66,7 +66,7 @@
 			],
 			"States": [
 				{
-					"Image": "imgs/actions/counter/key",
+					"Image": "imgs/actions/counter/button",
 					"TitleAlignment": "middle"
 				}
 			]
@@ -82,7 +82,7 @@
 			],
 			"States": [
 				{
-					"Image": "imgs/actions/counter/key",
+					"Image": "imgs/actions/counter/button",
 					"TitleAlignment": "middle"
 				}
 			]
@@ -115,5 +115,13 @@
 	"ApplicationsToMonitor": {
         "windows": ["Esports Dash.exe"]
     },
+
+	"Profiles": [
+        {
+            "DeviceType": 0,
+            "DontAutoSwitchWhenInstalled": false,
+            "Name": "EsportsDash (15 Key)"
+        }
+    ],
 	"UUID": "com.esportsdash.esportsdash-controller"
 }
