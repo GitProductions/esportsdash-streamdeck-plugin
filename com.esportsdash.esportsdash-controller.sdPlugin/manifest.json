@@ -6,7 +6,7 @@
 		{
 			"Name": "Adjust Score",
 			"UUID": "com.esportsdash.esportsdash-controller.adjustscore",
-			"Icon": "imgs/actions/counter/key",
+			"Icon": "imgs/actions/score/score",
 			"Tooltip": "Adjust the by incrementing or decrementing by one.",
 			"PropertyInspectorPath": "ui/adjust-score.html",
 			"Controllers": [
@@ -22,7 +22,7 @@
 		{
 			"Name": "Reset Match",
 			"UUID": "com.esportsdash.esportsdash-controller.resetmatch",
-			"Icon": "imgs/actions/counter/key",
+			"Icon": "imgs/actions/reset/reset",
 			"Tooltip": "Reset the Match Data",
 			"PropertyInspectorPath": "ui/reset-match.html",
 			"Controllers": [
@@ -39,7 +39,7 @@
 		{
 			"Name": "Update Match",
 			"UUID": "com.esportsdash.esportsdash-controller.updatematch",
-			"Icon": "imgs/actions/counter/key",
+			"Icon": "imgs/actions/update/update",
 			"Tooltip": "Update the Match Data",
 			"PropertyInspectorPath": "ui/update-match.html",
 			"Controllers": [
@@ -58,7 +58,7 @@
 		{
 			"Name": "Swap Teams",
 			"UUID": "com.esportsdash.esportsdash-controller.swapteams",
-			"Icon": "imgs/actions/counter/key",
+			"Icon": "imgs/actions/swap/swap",
 			"Tooltip": "Swap the Teams",
 			"PropertyInspectorPath": "ui/swap-teams.html",
 			"Controllers": [
@@ -74,7 +74,7 @@
 		{
 			"Name": "Window Controls",
 			"UUID": "com.esportsdash.esportsdash-controller.windowcontrols",
-			"Icon": "imgs/actions/counter/key",
+			"Icon": "imgs/actions/windows/windows",
 			"Tooltip": "Window Controls - Esports Dash",
 			"PropertyInspectorPath": "ui/window-controls.html",
 			"Controllers": [
@@ -112,5 +112,8 @@
 		"Version": "20",
 		"Debug": "enabled"
 	},
+	"ApplicationsToMonitor": {
+        "windows": ["Esports Dash.exe"]
+    },
 	"UUID": "com.esportsdash.esportsdash-controller"
 }
