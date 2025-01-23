@@ -1,7 +1,7 @@
 import { action, KeyDownEvent, SingletonAction, WillAppearEvent } from "@elgato/streamdeck";
 
 @action({ UUID: "com.esportsdash.esportsdash-controller.resetmatch" })
-export class ResetMatch extends SingletonAction<CounterSettings> {
+export class ResetMatch extends SingletonAction {
     private confirmationNeeded = false;
     private confirmationTimer: NodeJS.Timeout | null = null;
 
@@ -9,7 +9,7 @@ export class ResetMatch extends SingletonAction<CounterSettings> {
         return ev.action.setTitle(`RESET\nMATCH`);
     }
 
-    override async onKeyDown(ev: KeyDownEvent<CounterSettings>): Promise<void> {
+    override async onKeyDown(ev: KeyDownEvent): Promise<void> {
         if (!this.confirmationNeeded) {
             // First click - show confirmation
             this.confirmationNeeded = true;
@@ -20,7 +20,7 @@ export class ResetMatch extends SingletonAction<CounterSettings> {
                 this.confirmationNeeded = false;
                 await ev.action.setTitle('RESET\nMATCH');
                 this.confirmationTimer = null;
-            }, 3000);
+            }, 2000);
         } else {
             // Second click - execute reset
             if (this.confirmationTimer) {
@@ -41,7 +41,3 @@ export class ResetMatch extends SingletonAction<CounterSettings> {
         }
     }
 }
-
-type CounterSettings = {
-    count: number;
-};
