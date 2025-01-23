@@ -1,11 +1,33 @@
 import streamDeck, { action, KeyDownEvent, SingletonAction, WillAppearEvent, DidReceiveSettingsEvent} from "@elgato/streamdeck";
-
+import socket from '../websocket/socket';
 
 
 @action({ UUID: "com.esportsdash.esportsdash-controller.windowcontrols" })
 export class WindowControls extends SingletonAction<WindowControlSettings> {
+    constructor() {
+        super();
+
+        socket.on('connect', () => {
+            this.updateButtonTitle(true);
+        });
+
+        socket.on('disconnect', () => {
+            this.updateButtonTitle(false);
+        });
+    }
+    private updateButtonTitle(isConnected: boolean): void {
+        this.actions.forEach(action => {
+			action.setImage(isConnected ? '' : 'imgs/actions/disconnected.png');
+        });
+    }
+
 	override async onWillAppear(ev: WillAppearEvent<WindowControlSettings>): Promise<void> {
         const operation = ev.payload.settings?.operation;
+
+        if (!socket.connected) {
+            this.updateButtonTitle(false);
+            ev.action.showAlert();
+        }
         
         if (!operation) {
             await ev.action.setTitle('Select\nOperation');

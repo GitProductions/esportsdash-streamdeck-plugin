@@ -11,6 +11,8 @@ class SocketService {
             SocketService.instance = io('http://localhost:8080', {
                 path: '/socket.io'
             });
+
+
             SocketService.instance.on('connect', () => {
                 streamDeck.logger.info('Socket connected:', SocketService.instance.id);
 
@@ -19,8 +21,9 @@ class SocketService {
                     room: 'matchData',
                     source: 'streamDeck'
                 });
-
             });
+
+
             SocketService.instance.on('disconnect', () => {
                 console.log('Socket disconnected');
             });

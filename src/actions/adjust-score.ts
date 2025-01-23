@@ -1,5 +1,6 @@
 import streamDeck, { action, DidReceiveSettingsEvent, KeyDownEvent, SingletonAction, WillAppearEvent, WillDisappearEvent } from "@elgato/streamdeck";
 import { EventEmitter } from 'events';
+import socket from '../websocket/socket';
 
 @action({ UUID: "com.esportsdash.esportsdash-controller.adjustscore" })
 export class AdjustScore extends SingletonAction<CounterSettings> {
@@ -11,6 +12,20 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
     constructor() {
         super();
         AdjustScore.instances.push(this);
+
+                socket.on('connect', () => {
+                    this.updateButtonTitle(true);
+                });
+        
+                socket.on('disconnect', () => {
+                    this.updateButtonTitle(false);
+                });
+    }
+
+    private updateButtonTitle(isConnected: boolean): void {
+        this.actions.forEach(action => {
+			action.setImage(isConnected ? '' : 'imgs/actions/disconnected.png');
+        });
     }
 
     private async _fetchTeamLogoUrl(team: string): Promise<string> {
@@ -23,6 +38,7 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
         const arrayBuffer = await response.arrayBuffer();
         return `data:image/png;base64,${Buffer.from(arrayBuffer).toString('base64')}`;
     }
+
 
     private async setTeamIcon(team: string, action: any): Promise<void> {
         try {
@@ -45,10 +61,10 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
 
             // Build title based on includeOptions
             let title = '';
-            if (includeOptions.includes('includeName') && displayName) {
+            if (includeOptions?.includes('includeName') && displayName) {
                 title += `${displayName}\n`;
             }
-            if (includeOptions.includes('includeScore')) {
+            if (includeOptions?.includes('includeScore')) {
                 title += `${displayScore}`;
             }
 
@@ -62,7 +78,7 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
 
         } catch (error) {
             streamDeck.logger.error(`Failed to update button state for team ${team}:`, error);
-            await ev.action.setTitle('Error');
+            await ev.action.setTitle('Error\n\nCheck\nLogs');
         }
     }
 
@@ -73,28 +89,41 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
             let score: number | undefined;
             let teamName: string | undefined;
 
+            // streamDeck.logger.info(`current includeOptions: ${includeOptions}`);
+
             // Only fetch initial data if needed
-            if (includeOptions.includes('includeScore')) {
+            if (includeOptions?.includeScore) {
                 const scoreResponse = await fetch(`http://localhost:8080/getValue?path=teams.team${team}.teamScore`);
                 const scoreText = await scoreResponse.text();
                 score = scoreText ? Number(scoreText) : 0;
                 streamDeck.logger.info(`Initial score for team ${team}: ${score}`);
             }
 
-            if (includeOptions.includes('includeName')) {
+            if (includeOptions?.includeName) {
                 const nameResponse = await fetch(`http://localhost:8080/getValue?path=teams.team${team}.teamName`);
                 teamName = await nameResponse.text();
             }
 
+            if (includeOptions?.includeLogo) {
+                await this.setTeamIcon(team, ev.action);
+            }
+
+
             await this.updateButtonState(ev, score, teamName);
         } catch (error) {
             streamDeck.logger.error(`Failed to initialize button state for team ${team}:`, error);
-            await ev.action.setTitle('Error');
+            await ev.action.setTitle('Error\n\nCheck\nLogs');
         }
     }
 
     override async onWillAppear(ev: WillAppearEvent<CounterSettings>): Promise<void> {
         const { team, includeOptions } = ev.payload.settings;
+
+        if(!socket.connected) {
+            ev.action.showAlert();
+            this.updateButtonTitle(false);
+            return;
+        }
 
         if (!team) {
             streamDeck.logger.error('No team selected for this button');
@@ -105,20 +134,20 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
 
         try {
             // Initial state setup
-            if (includeOptions.includes('includeLogo')) {
-                await this.setTeamIcon(team, ev.action);
-            }
             await this.initializeButtonState(ev);
 
 
+            if (includeOptions?.includes('includeLogo')) {
+                await this.setTeamIcon(team, ev.action);
+            }
+
 
             AdjustScore.eventEmitter.on(`logoUpdated:${team}`, async (logoUrl: string) => {
-                if (includeOptions.includes('includeLogo')) {
+                if (includeOptions?.includes('includeLogo')) {
                     const base64Image = await this._fetchImageAsBase64(logoUrl.trim());
                     await ev.action.setImage(base64Image);
                 }
             });
-
 
             // Update event listeners in onWillAppear
             AdjustScore.eventEmitter.on(`scoreUpdated:${team}`, async (score: number) => {
@@ -151,7 +180,6 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
             AdjustScore.eventEmitter.emit(`scoreUpdated:${settings.team}`, score);
         } catch (error) {
             // show alert
-
             ev.action.showAlert();
             streamDeck.logger.error(`Error updating score for team ${settings.team}:`, error);
         }
@@ -170,7 +198,7 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
         const currentScore = ev.payload.settings.count ?? 0;
         await this.updateButtonState(ev, currentScore);
 
-        if (includeOptions.includes('includeLogo')) {
+        if (includeOptions?.includes('includeLogo')) {
             await this.setTeamIcon(team, ev.action);
         } else {
             await ev.action.setImage('');

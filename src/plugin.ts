@@ -17,17 +17,6 @@ streamDeck.actions.registerAction(new UpdateMatch());
 streamDeck.actions.registerAction(new WindowControls());
 
 
-
-
-// ideas..
-////// Regarding swapping teams or resetting match info..
-// put a 'border' around team logo if the team score has been updated on SD but not actually pushed update to the dashboard
-// this would allow the user to know when they need to force an update?
-// this example also useful for the swap teams.. by default in dashboard it 'swaps' them.. 
-// in the streamdeck the user wont know this since it only shows us actual live updates available.. and this hasnt been updated yet
-// so the user has to use 'update match' action to make this happen and a border here would allow them to know.. ?
-//////
-
 socket.on('updateMatchData', (data: MatchUpdate) => {
     streamDeck.logger.info('Received match data update:', data);
     
@@ -50,11 +39,6 @@ socket.on('updateMatchData', (data: MatchUpdate) => {
                 );
             }
 
-            // if (typeof teamData.teamColor !== 'undefined') {
-            //     AdjustScore.eventEmitter.emit(`colorUpdated:${teamData.teamNumber}`, 
-            //         teamData.teamColor
-            //     );
-            // }
 
             if (typeof teamData.teamName !== 'undefined') {
                 AdjustScore.eventEmitter.emit(`nameUpdated:${teamData.teamNumber}`, 

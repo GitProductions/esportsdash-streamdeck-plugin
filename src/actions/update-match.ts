@@ -1,15 +1,46 @@
 import { action, KeyDownEvent, SingletonAction, WillAppearEvent } from "@elgato/streamdeck";
+import socket from '../websocket/socket';
 
 @action({ UUID: "com.esportsdash.esportsdash-controller.updatematch" })
 export class UpdateMatch extends SingletonAction<CounterSettings> {
     private confirmationNeeded = false;
     private confirmationTimer: NodeJS.Timeout | null = null;
 
-    override onWillAppear(ev: WillAppearEvent): void | Promise<void> {
-        return ev.action.setTitle(`UPDATE\nMATCH`);
-    }
+    
+        constructor() {
+            super();
+    
+            socket.on('connect', () => {
+                this.updateButtonTitle(true);
+            });
+    
+            socket.on('disconnect', () => {
+                this.updateButtonTitle(false);
+            });
+        }
+    
+        private updateButtonTitle(isConnected: boolean): void {
+            this.actions.forEach(action => {
+                action.setTitle(isConnected ? `UPDATE\nMATCH` : ``);
+                action.setImage(isConnected ? '' : 'imgs/actions/disconnected.png');
+            });
+        }
+    
+    
+    
+    
+        override onWillAppear(ev: WillAppearEvent): void | Promise<void> {
+            this.updateButtonTitle(socket.connected);
+        }
+
+
 
     override async onKeyDown(ev: KeyDownEvent<CounterSettings>): Promise<void> {
+        if (!socket.connected) {
+            ev.action.showAlert();
+            return;
+        }
+        
         if (!this.confirmationNeeded) {
             // First click - show confirmation
             this.confirmationNeeded = true;
