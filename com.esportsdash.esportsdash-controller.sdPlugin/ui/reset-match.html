@@ -2,20 +2,29 @@
 <html>
 
 <head lang="en">
-    <title>Adjust Score Settings</title>
+    <title>Reset Match</title>
     <meta charset="utf-8" />
     <script src="https://sdpi-components.dev/releases/v3/sdpi-components.js"></script>
+    <link rel="stylesheet" href="./resources/css/spdi.css">
+
 </head>
 
 <body>
+    <div class="sdpi-heading">Reset Match Data</div>
+    <div class="sdpi-item" style="padding-top: 8px;">
+        <span> A Match Update action must occur for full reset </span>
+    </div>
+    
+    <div class="sdpi-item" >
+        <span>Use Force update to reset & update simultaneously</span>
+    </div>
 
-    <sdpi-item label="Include Logo">
-     <!-- <sdpi-checkbox setting="includeLogo"></sdpi-checkbox> -->
-      Reset Match Data
+    <sdpi-item label="Force Update">
+        <sdpi-checkbox setting="forceUpdate" label="This will force a dashboard update after resetting if enabled."></sdpi-checkbox>
     </sdpi-item>
 
-        
-    
+
+
 </body>
 
 </html>

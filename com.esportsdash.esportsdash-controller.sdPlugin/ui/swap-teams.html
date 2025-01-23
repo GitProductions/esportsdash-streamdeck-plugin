@@ -5,17 +5,30 @@
     <title>Swap Teams</title>
     <meta charset="utf-8" />
     <script src="https://sdpi-components.dev/releases/v3/sdpi-components.js"></script>
+    <link rel="stylesheet" href="./resources/css/spdi.css">
+
 </head>
 
 <body>
+    <div class="sdpi-heading">Swap Teams</div>
+    <div class="sdpi-item" style="padding-top: 8px;">
+        <span> Swap Teams in Dashboard </span>
+    </div>
+    <div class="sdpi-item">
+        <span> Must 'Update Match' to apply swapped teams</span>
+    </div>
 
-    <sdpi-item label="Include Logo">
-     <!-- <sdpi-checkbox setting="includeLogo"></sdpi-checkbox> -->
-      Swap Teams
+    <sdpi-item label="Force Update">
+        <sdpi-checkbox setting="forceUpdate"
+            label="This will force a dashboard update after resetting if enabled."></sdpi-checkbox>
+
     </sdpi-item>
 
-        
-    
+
+
+
+
+
 </body>
 
 </html>
