@@ -46,7 +46,7 @@ export class WindowControls extends SingletonAction<WindowControlSettings> {
 		if (ev.payload.settings.operation) {
 
 			streamDeck.logger.info(`Window Controls Trigger: ${ev.payload.settings.operation}`);
-
+            // in future it wil be api/window/${ev.payload.settings.operation}
         	fetch(`http://localhost:8080/api/${ev.payload.settings.operation}`)
 		}
 
