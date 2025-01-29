@@ -13,10 +13,10 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
         super();
         AdjustScore.instances.push(this);
 
+                // Setting Button Title/Status based on socket connection
                 socket.on('connect', () => {
                     this.updateButtonTitle(true);
                 });
-        
                 socket.on('disconnect', () => {
                     this.updateButtonTitle(false);
                 });
@@ -45,6 +45,8 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
             const teamLogoUrl = await this._fetchTeamLogoUrl(team);
             const base64Image = await this._fetchImageAsBase64(teamLogoUrl.trim());
             await action.setImage(base64Image);
+
+            // emitting event to 'itself' to update
             AdjustScore.eventEmitter.emit(`logoUpdated:${team}`, teamLogoUrl);
         } catch (error) {
             streamDeck.logger.error(`Failed to set team icon for team ${team}:`, error);
@@ -83,7 +85,7 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
     }
 
     private async initializeButtonState(ev: any): Promise<void> {
-        const { team, includeOptions } = ev.payload.settings;
+        const { team, includeOptions, operation } = ev.payload.settings;
 
         try {
             let score: number | undefined;
@@ -104,9 +106,21 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
                 teamName = await nameResponse.text();
             }
 
-            if (includeOptions?.includeLogo) {
+            if ( !includeOptions?.includeLogo ){
+                if (operation === 'increment'){
+                    ev.action.setImage('imgs/actions/counter/button-positive@2x.png');
+                } else if (operation === 'decrement'){
+                    ev.action.setImage('imgs/actions/counter/button-negative@2x.png');
+                }
+
+
+            } else if (includeOptions?.includeLogo) {
                 await this.setTeamIcon(team, ev.action);
             }
+
+    
+
+
 
 
             await this.updateButtonState(ev, score, teamName);
@@ -186,7 +200,9 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
     }
 
     override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<CounterSettings>): Promise<void> {
-        const { team, includeOptions } = ev.payload.settings;
+        const { team, includeOptions, operation } = ev.payload.settings;
+
+
 
         if (!team) {
             streamDeck.logger.error('No team selected');
@@ -200,9 +216,13 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
 
         if (includeOptions?.includes('includeLogo')) {
             await this.setTeamIcon(team, ev.action);
-        } else {
-            await ev.action.setImage('');
+        } 
+
+        if ( operation === 'increment'){
+            ev.action.setImage('imgs/actions/counter/button-negative@2x.png');
         }
+        await ev.action.setImage('');
+        
     }
 
     override async onWillDisappear(ev: WillDisappearEvent<CounterSettings>): Promise<void> {

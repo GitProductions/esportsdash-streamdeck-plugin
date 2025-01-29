@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <title>Select Team</title>
+    <meta charset="utf-8" />
+    <script src="https://sdpi-components.dev/releases/v3/sdpi-components.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <link rel="stylesheet" href="./resources/css/spdi.css">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const socket = io('http://localhost:8080', {
+                path: '/socket.io'
+            });
+
+            socket.on('connect', () => {
+                console.log('Connected to Socket.IO server');
+            });
+
+            socket.on('disconnect', () => {
+                console.log('Disconnected from Socket.IO server');
+            });
+
+            socket.on('teamList', (teams) => {
+                console.log('Received match data update:', teams);
+                updateTeamList([{
+                    id: 1,
+                    name: 'Team 1afsafasf Test'
+                }, {
+                    id: 2,
+                    name: 'Team 2 afsasfTest'
+                }]);
+            });
+
+            function updateTeamList(teams) {
+                const selectElement = document.getElementById('teamList');
+
+                // Clear existing options
+                while (selectElement.options.length > 0) {
+                    selectElement.remove(0);
+                }
+
+                // Add new options
+                teams.forEach(team => {
+                    const option = document.createElement('option');
+                    option.value = team.id;
+                    option.textContent = team.name;
+                    selectElement.appendChild(option);
+                });
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <div class="sdpi-heading">Select Team Data</div>
+    <div class="sdpi-item" style="padding-top: 8px;">
+        <span> Select a Team from the team manager List</span>
+    </div>
+
+    <sdpi-item label="Select Team">
+        <sdpi-select id="teamList" setting="teamList" placeholder="Please choose a team">
+            <option value="1">Team 1 Test</option>
+            <option value="2">Team 2 Test</option>
+        </sdpi-select>
+    </sdpi-item>
+</body>
+
+</html>

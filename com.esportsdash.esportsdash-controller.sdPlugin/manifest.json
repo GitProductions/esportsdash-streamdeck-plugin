@@ -35,7 +35,6 @@
 				}
 			]
 		},
-
 		{
 			"Name": "Update Match",
 			"UUID": "com.esportsdash.esportsdash-controller.updatematch",
@@ -52,9 +51,6 @@
 				}
 			]
 		},
-
-
-
 		{
 			"Name": "Swap Teams",
 			"UUID": "com.esportsdash.esportsdash-controller.swapteams",
@@ -86,14 +82,47 @@
 					"TitleAlignment": "middle"
 				}
 			]
+		},
+		{
+			"Name": "Select Team",
+			"UUID": "com.esportsdash.esportsdash-controller.selectteam",
+			"Icon": "imgs/actions/select/select",
+			"Tooltip": "Select a Team from List",
+			"VisibleInActionsList": false,
+			"PropertyInspectorPath": "ui/select-team.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/button",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Set Team Name",
+			"UUID": "com.esportsdash.esportsdash-controller.setteamname",
+			"Icon": "imgs/actions/setteamname/setteamname",
+			"Tooltip": "Choose a Team Name",
+			"PropertyInspectorPath": "ui/set-team-name.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/button",
+					"TitleAlignment": "middle"
+				}
+			]
 		}
-
 	],
 	"Category": "EsportsDash Controller",
 	"CategoryIcon": "imgs/plugin/category-icon",
 	"CodePath": "bin/plugin.js",
-	"Description": "Helps users control their esports dash",
+	"Description": "Helps users control their Esports Production using EsportsDash & Stream Deck",
 	"Icon": "imgs/plugin/marketplace",
+	"URL": "https://esportsdash.com",
 	"SDKVersion": 2,
 	"Software": {
 		"MinimumVersion": "6.4"
@@ -113,15 +142,16 @@
 		"Debug": "enabled"
 	},
 	"ApplicationsToMonitor": {
-        "windows": ["Esports Dash.exe"]
-    },
-
+		"windows": [
+			"Esports Dash.exe"
+		]
+	},
 	"Profiles": [
-        {
-            "DeviceType": 0,
-            "DontAutoSwitchWhenInstalled": false,
-            "Name": "EsportsDash (15 Key)"
-        }
-    ],
+		{
+			"DeviceType": 0,
+			"DontAutoSwitchWhenInstalled": false,
+			"Name": "EsportsDash (15 Key)"
+		}
+	],
 	"UUID": "com.esportsdash.esportsdash-controller"
 }

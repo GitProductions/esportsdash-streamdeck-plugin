@@ -12,21 +12,22 @@ class SocketService {
                 path: '/socket.io'
             });
 
-
             SocketService.instance.on('connect', () => {
                 streamDeck.logger.info('Socket connected:', SocketService.instance.id);
 
-                // not being utilized as expected yet..
+                // not being utilized on server side yet..
                 SocketService.instance.emit('joinRoom', {
                     room: 'matchData',
                     source: 'streamDeck'
                 });
             });
-
+            
 
             SocketService.instance.on('disconnect', () => {
                 console.log('Socket disconnected');
             });
+
+ 
         }
         return SocketService.instance;
     }

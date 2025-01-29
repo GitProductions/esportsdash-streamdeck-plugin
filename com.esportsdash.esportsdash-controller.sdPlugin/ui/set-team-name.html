@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <title>Set Team Name</title>
+    <meta charset="utf-8" />
+    <script src="https://sdpi-components.dev/releases/v3/sdpi-components.js"></script>
+    <link rel="stylesheet" href="./resources/css/spdi.css">
+</head>
+
+<body>
+    <div class="sdpi-heading">Set Team Name</div>
+    <!-- <div class="sdpi-item" style="padding-top: 8px;">
+        <span>Set Team Names</span>
+    </div> -->
+
+    <!-- teamSide aka team1 or team2 -->
+    <sdpi-item label="Select">
+        <sdpi-select setting="teamSide" placeholder="Please choose a team">
+            <option value="1">Team 1</option>
+            <option value="2">Team 2</option>
+        </sdpi-select>
+    </sdpi-item>
+
+
+    <!-- teamName -->
+    <sdpi-item label="Team Name">
+        <sdpi-textfield
+            setting="teamName"
+            pattern="/^[a-z ,.'-]+$/i"
+            placeholder="Team Name"
+            required>
+        </sdpi-textfield>
+    </sdpi-item>
+
+</body>
+
+</html>

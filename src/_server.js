@@ -15,9 +15,9 @@ io.on('connection', (socket) => {
         console.log('User joined room:', data.room);
     });
 
-    console.log("Sending score update")
+    // console.log("Sending score update")
     // Emit a message back to the client (for example, a score update)
-    socket.emit('scoreUpdate', { team: 'team1', score: 100 });
+    // socket.emit('scoreUpdate', { team: 'team1', score: 100 });
 
     // Handle disconnection
     socket.on('disconnect', () => {
