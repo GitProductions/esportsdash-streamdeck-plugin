@@ -17,11 +17,6 @@ streamDeck.actions.registerAction(new SwapTeams());
 streamDeck.actions.registerAction(new UpdateMatch());
 streamDeck.actions.registerAction(new WindowControls());
 streamDeck.actions.registerAction(new SetTeamName());
-
-
-
-// Doesnt work as expecte right now as we need a way to update the team list in the property inspector
-// from within the action??  this way we can simplify the entire workflow and have a socket.io event rather than polling
 streamDeck.actions.registerAction(new SelectTeam());
 
 // SelectGameConfig action will be simiiar to above where it fetches names of available game configs and then lets user choose
@@ -34,17 +29,12 @@ type Team = {
     logo: string;
 };
 
-
-// async function fetchAndModifyTeamList(): Promise<Team[]> {
+// async function fetchTeamList(): Promise<Team[]> {
 //     try {
+//         // this should be swapped to a socket event that gets sent on startup and then again if it changes
+//         // for now we use this...
 //         const response = await fetch('http://localhost:8080/api/teams/teamlist');
 //         let fullTeamList = await response.json() as Team[];
-
-//         // Add an ID to every team in the list for testing purposes
-//         // fullTeamList.forEach(team => {
-//         //     team.id = Math.floor(Math.random() * 1000);
-//         // });
-
 //         console.log('Modified team list:', fullTeamList);
 //         streamDeck.settings.setGlobalSettings({
 //             teamList: fullTeamList
@@ -56,23 +46,24 @@ type Team = {
 //         return [];
 //     }
 // }
+// fetchTeamList();
 
-// fetchAndModifyTeamList();
 
 
+// not sure if we have any use for teamadded/teamremoved events..
+// simply we should get an event anytime a new team is added/removed or startup and always override the previous teamList
 socket.on('teamManager', (data) => {
     switch (data.type) {
         case 'onStartup':
-            // socket.emit('teamList', {
-            //     sender: 'streamDeck',
-            //     timestamp: Date.now(),
-            //     received: true,
-            //     teams: ['Team 1', 'Team 2', 'Team 3', 'Team 4']
-            // })
-            
+            streamDeck.settings.setGlobalSettings({
+                teamList: data.teams
+            });   
             streamDeck.logger.info('Received team manager startup:', data);
             break;
         case 'teamAdded':
+            streamDeck.settings.setGlobalSettings({
+                teamList: data.teams
+            });   
             streamDeck.logger.info('Received team added:', data);
             break;
         case 'teamRemoved':

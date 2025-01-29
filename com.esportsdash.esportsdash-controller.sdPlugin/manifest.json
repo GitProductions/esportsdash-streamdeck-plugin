@@ -86,7 +86,7 @@
 		{
 			"Name": "Select Team",
 			"UUID": "com.esportsdash.esportsdash-controller.selectteam",
-			"Icon": "imgs/actions/select/select",
+			"Icon": "imgs/actions/selectteam/teamselect",
 			"Tooltip": "Select a Team from List",
 			"VisibleInActionsList": true,
 			"PropertyInspectorPath": "ui/select-team.html",
@@ -103,7 +103,7 @@
 		{
 			"Name": "Set Team Name",
 			"UUID": "com.esportsdash.esportsdash-controller.setteamname",
-			"Icon": "imgs/actions/setteamname/setteamname",
+			"Icon": "imgs/actions/setteam/set-team",
 			"Tooltip": "Choose a Team Name",
 			"PropertyInspectorPath": "ui/set-team-name.html",
 			"Controllers": [

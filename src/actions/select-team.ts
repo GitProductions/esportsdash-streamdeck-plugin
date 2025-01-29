@@ -1,6 +1,9 @@
 import streamDeck, { action, KeyDownEvent, SingletonAction, WillAppearEvent, WillDisappearEvent,
-     DidReceiveSettingsEvent, DidReceiveGlobalSettingsEvent } from "@elgato/streamdeck";
+     DidReceiveSettingsEvent } from "@elgato/streamdeck";
 import socket from '../websocket/socket';
+import { createCanvas, loadImage } from 'canvas';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 let fullTeamList: Team[] = [];
 
@@ -55,44 +58,80 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
     private async setButtonInfo(ev: EventPayload) {
         const { team, teamList } = ev.payload.settings;
         // find team in list based on name aka 'teamList' will be teamname here
-        const matchedTeam = fullTeamList.find(t => t.name === teamList);
-        if (!matchedTeam) {
-            streamDeck.logger.error('Team not found:', teamList);
-            return;
+        
+        if (fullTeamList.length > 0) {
+            const matchedTeam = fullTeamList.find(t => t.name === teamList);
+            if (!matchedTeam) {
+                streamDeck.logger.error('Team not found:', teamList);
+                return;
+            }
+
+            // setting the title & logo based on the team selected
+            ev.action.setTitle(`${matchedTeam.name}`);
+            const teamLogo = await this._fetchImageAsBase64(ev, matchedTeam.logo);
+            ev.action.setImage(teamLogo);
         }
 
-        // setting the title & logo based on the team selected
-        ev.action.setTitle(`SELECT\n${matchedTeam.name}`);
-        const teamLogo = await this._fetchImageAsBase64(matchedTeam.logo);
-        ev.action.setImage(teamLogo);
+
 
     }
 
 
-    private async _fetchImageAsBase64(url: string): Promise<string> {
+
+
+
+    // using just the basic image
+    // private async _fetchImageAsBase64(url: string): Promise<string> {
+    //     const response = await fetch(url);
+    //     const arrayBuffer = await response.arrayBuffer();
+    //     return `data:image/png;base64,${Buffer.from(arrayBuffer).toString('base64')}`;
+    // }
+
+
+    // layering the team logo on top of a base image
+    private async _fetchImageAsBase64(ev:EventPayload, url: string): Promise<string> {
+        const MAX_SIZE = 72;
+    
         const response = await fetch(url);
         const arrayBuffer = await response.arrayBuffer();
-        return `data:image/png;base64,${Buffer.from(arrayBuffer).toString('base64')}`;
+        const buffer = Buffer.from(arrayBuffer);
+    
+        // Load remote and local images
+        const img = await loadImage(buffer);
+        // const localImagePath = path.resolve('imgs/actions/selectteam/teamSelect-t1.png');
+        const localImagePath = path.resolve(`imgs/actions/selectteam/teamSelect-t${ev.payload.settings.teamSide}.png`);
+        const localImageBuffer = await fs.readFile(localImagePath);
+        const localImg = await loadImage(localImageBuffer);
+    
+        // Function to resize an image while maintaining aspect ratio
+        const resizeImage = (image: any) => {
+            const scale = Math.min(MAX_SIZE / image.width, MAX_SIZE / image.height);
+            return {
+                width: Math.round(image.width * scale),
+                height: Math.round(image.height * scale),
+            };
+        };
+    
+        const imgSize = resizeImage(img);
+        const localImgSize = resizeImage(localImg);
+    
+        // Create a fixed 128x128 canvas
+        const canvas = createCanvas(MAX_SIZE, MAX_SIZE);
+        const ctx = canvas.getContext('2d');
+    
+        // Calculate positions to center images
+        const imgX = (MAX_SIZE - imgSize.width) / 2;
+        const imgY = (MAX_SIZE - imgSize.height) / 2;
+        const localImgX = (MAX_SIZE - localImgSize.width) / 2;
+        const localImgY = (MAX_SIZE - localImgSize.height) / 2;
+    
+        // Draw images centered on the canvas
+        ctx.drawImage(img, imgX, imgY, imgSize.width, imgSize.height);
+        ctx.drawImage(localImg, localImgX, localImgY, localImgSize.width, localImgSize.height);
+    
+        return canvas.toDataURL('image/png');
     }
 
-
-    private async fetchAndModifyTeamList(): Promise<Team[]> {
-        try {
-            const response = await fetch('http://localhost:8080/api/teams/teamlist');
-            fullTeamList = await response.json() as Team[];
-
-            // Add an ID to every team in the list for testing purposes
-            // fullTeamList.forEach(team => {
-            //     team.id = Math.floor(Math.random() * 1000);
-            // });
-
-            console.log('Modified team list:', fullTeamList);
-            return fullTeamList;
-        } catch (error) {
-            console.error('Error fetching team list:', error);
-            return [];
-        }
-    }
 
     override onWillAppear(ev: WillAppearEvent<SelectTeamSettings>): void | Promise<void> {
         this.updateButtonTitle(socket.connected);
@@ -100,21 +139,30 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
 
         streamDeck.logger.info('ButtonAppears:', currentSettings);
 
-        // const globalSettings = streamDeck.settings.getGlobalSettings()
+        // fires anytime the global settings are updated
+        streamDeck.settings.onDidReceiveGlobalSettings(async (event) => {
+			// if (!event.settings.auth_ok) {
+			// 	await ev.action.setTitle("Please\nAuthorize")
+			// } else {
+            //     await ev.action.setTitle("RECEIVED GLOBAL")
+            // }
 
-        // if (globalSettings.teamList) {
-        //     fullTeamList = globalSettings.teamList;
-        // }
-
-        this.fetchAndModifyTeamList().then(teamList => {
-            const mergedSettings = {
-                ...currentSettings,
-                teamList
-            };
-            streamDeck.settings.setGlobalSettings(mergedSettings);
+            // setting the teamlist locally for image/logo reference
+            if (event.settings.teamList) {
+                fullTeamList = event.settings.teamList as Team[];
+            }
         });
 
-        this.setButtonInfo(ev);
+
+        // fetch team list on 'startup'
+        streamDeck.settings.getGlobalSettings().then(globalSettings => {
+            streamDeck.logger.info('GlobalSettings:', globalSettings);
+            fullTeamList = globalSettings.teamList as Team[];
+            this.setButtonInfo(ev);
+        });
+
+
+        // this.setButtonInfo(ev);
     }
 
 

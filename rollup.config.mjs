@@ -1,9 +1,11 @@
 import commonjs from "@rollup/plugin-commonjs";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import terser from "@rollup/plugin-terser";
+import json from '@rollup/plugin-json';
 import typescript from "@rollup/plugin-typescript";
 import path from "node:path";
 import url from "node:url";
+
 
 const isWatching = !!process.env.ROLLUP_WATCH;
 const sdPlugin = "com.esportsdash.esportsdash-controller.sdPlugin";
@@ -20,6 +22,7 @@ const config = {
 			return url.pathToFileURL(path.resolve(path.dirname(sourcemapPath), relativeSourcePath)).href;
 		}
 	},
+	external: ['canvas'], // Exclude the canvas package
 	plugins: [
 		{
 			name: "watch-externals",
@@ -36,6 +39,7 @@ const config = {
 			preferBuiltins: true
 		}),
 		commonjs(),
+		json(),
 		!isWatching && terser(),
 		{
 			name: "emit-module-package-file",
