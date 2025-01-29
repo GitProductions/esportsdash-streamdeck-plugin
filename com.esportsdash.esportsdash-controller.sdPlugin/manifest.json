@@ -88,7 +88,7 @@
 			"UUID": "com.esportsdash.esportsdash-controller.selectteam",
 			"Icon": "imgs/actions/select/select",
 			"Tooltip": "Select a Team from List",
-			"VisibleInActionsList": false,
+			"VisibleInActionsList": true,
 			"PropertyInspectorPath": "ui/select-team.html",
 			"Controllers": [
 				"Keypad"

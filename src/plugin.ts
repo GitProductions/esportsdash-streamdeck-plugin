@@ -28,6 +28,36 @@ streamDeck.actions.registerAction(new SelectTeam());
 
 
 
+type Team = {
+    id: number;
+    name: string;
+    logo: string;
+};
+
+
+// async function fetchAndModifyTeamList(): Promise<Team[]> {
+//     try {
+//         const response = await fetch('http://localhost:8080/api/teams/teamlist');
+//         let fullTeamList = await response.json() as Team[];
+
+//         // Add an ID to every team in the list for testing purposes
+//         // fullTeamList.forEach(team => {
+//         //     team.id = Math.floor(Math.random() * 1000);
+//         // });
+
+//         console.log('Modified team list:', fullTeamList);
+//         streamDeck.settings.setGlobalSettings({
+//             teamList: fullTeamList
+//         });
+
+//         return fullTeamList;
+//     } catch (error) {
+//         console.error('Error fetching team list:', error);
+//         return [];
+//     }
+// }
+
+// fetchAndModifyTeamList();
 
 
 socket.on('teamManager', (data) => {
