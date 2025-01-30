@@ -60,15 +60,15 @@ socket.on('teamManager', (data) => {
             });   
             streamDeck.logger.info('Received team manager startup:', data);
             break;
-        case 'teamAdded':
-            streamDeck.settings.setGlobalSettings({
-                teamList: data.teams
-            });   
-            streamDeck.logger.info('Received team added:', data);
-            break;
-        case 'teamRemoved':
-            streamDeck.logger.info('Received team removed:', data);
-            break;
+        // case 'teamAdded':
+        //     streamDeck.settings.setGlobalSettings({
+        //         teamList: data.teams
+        //     });   
+        //     streamDeck.logger.info('Received team added:', data);
+        //     break;
+        // case 'teamRemoved':
+        //     streamDeck.logger.info('Received team removed:', data);
+        //     break;
         
         default:
             break;
