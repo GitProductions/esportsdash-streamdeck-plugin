@@ -29,6 +29,12 @@ type Team = {
     logo: string;
 };
 
+//// - NOTE   ----------- ////
+// this is likely needed or something similar IF we are connecing AFTER the app has been started..
+// because the app would have already fired this 'onstartup' event... right?
+// -----------
+
+
 // async function fetchTeamList(): Promise<Team[]> {
 //     try {
 //         // this should be swapped to a socket event that gets sent on startup and then again if it changes
