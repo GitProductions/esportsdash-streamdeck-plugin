@@ -23,7 +23,12 @@ export class ImageLoader {
 
 
 
-
+// import { createCanvas,
+//      loadImage,
+//      Image 
+//     } from 'canvas';
+// import { promises as fs } from 'fs';
+// import path from 'path';
 
 
     // Keep all the commented out image processing code here
