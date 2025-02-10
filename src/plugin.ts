@@ -4,8 +4,10 @@ import { ResetMatch } from './actions/reset-match';
 import { SwapTeams } from './actions/swap-teams';
 import { WindowControls } from './actions/window-controls';
 import { UpdateMatch } from './actions/update-match';
-import { SelectTeam } from './actions/select-team';
 import { SetTeamName } from './actions/set-team-name';
+
+import { SelectTeam } from './actions/select-team';
+
 import socket from './websocket/socket';
 
 // Set up logging for debugging - trace for everything
@@ -17,6 +19,8 @@ streamDeck.actions.registerAction(new SwapTeams());
 streamDeck.actions.registerAction(new UpdateMatch());
 streamDeck.actions.registerAction(new WindowControls());
 streamDeck.actions.registerAction(new SetTeamName());
+
+// something in select team causes it not to work when compiled???
 streamDeck.actions.registerAction(new SelectTeam());
 
 // SelectGameConfig action will be simiiar to above where it fetches names of available game configs and then lets user choose
@@ -59,10 +63,38 @@ type Team = {
 // not sure if we have any use for teamadded/teamremoved events..
 // simply we should get an event anytime a new team is added/removed or startup and always override the previous teamList
 socket.on('teamManager', (data) => {
+    if (!data.type ) {
+        return;
+    }
+
+    streamDeck.logger.info('Received team manager event:', data);
     switch (data.type) {
         case 'onStartup':
             streamDeck.settings.setGlobalSettings({
                 teamList: data.teams
+                // teamList: []
+                // teamList:  [
+                //     {
+                //         id: 1,
+                //         name: 'Cat 1',
+                //         logo: 'https://placecats.com/200/200'
+                //     },
+                //     {
+                //         id: 2,
+                //         name: 'Cat 2',
+                //         logo: 'https://placecats.com/200/200'
+                //     },
+                //     {
+                //         id: 3,
+                //         name: 'Cat 3',
+                //         logo: 'https://placecats.com/200/200'
+                //     },
+                //     {
+                //         id: 4,
+                //         name: 'Cat 4',
+                //         logo: 'https://placecats.com/200/200'
+                //     }   
+                // ]
             });   
             streamDeck.logger.info('Received team manager startup:', data);
             break;

@@ -56,6 +56,8 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
     private async updateButtonState(ev: any, score?: number | null, teamName?: string): Promise<void> {
         const { team, includeOptions } = ev.payload.settings;
 
+        streamDeck.logger.debug(`DEBUG: Updating button state for team ${team}, score: ${score}, teamName: ${teamName}`);
+
         try {
             // Use provided values or fall back to stored settings
             const displayScore = score ?? ev.payload.settings.count ?? 0;
@@ -64,6 +66,7 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
             // Build title based on includeOptions
             let title = '';
             if (includeOptions?.includes('includeName') && displayName) {
+                console.log("displayName: ", displayName);
                 title += `${displayName}\n`;
             }
             if (includeOptions?.includes('includeScore')) {
@@ -87,42 +90,37 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
     private async initializeButtonState(ev: any): Promise<void> {
         const { team, includeOptions, operation } = ev.payload.settings;
 
+        if (!team) {
+            await ev.action.setTitle('Select Team');
+            return;
+        }
+
         try {
             let score: number | undefined;
             let teamName: string | undefined;
 
-            // streamDeck.logger.info(`current includeOptions: ${includeOptions}`);
+            // Fetch initial data regardless of display options to ensure we have the data
+            const scoreResponse = await fetch(`http://localhost:8080/getValue?path=teams.team${team}.teamScore`);
+            const scoreText = await scoreResponse.text();
+            score = scoreText ? Number(scoreText) : 0;
 
-            // Only fetch initial data if needed
-            if (includeOptions?.includeScore) {
-                const scoreResponse = await fetch(`http://localhost:8080/getValue?path=teams.team${team}.teamScore`);
-                const scoreText = await scoreResponse.text();
-                score = scoreText ? Number(scoreText) : 0;
-                streamDeck.logger.info(`Initial score for team ${team}: ${score}`);
-            }
+            const nameResponse = await fetch(`http://localhost:8080/getValue?path=teams.team${team}.teamName`);
+            teamName = await nameResponse.text();
 
-            if (includeOptions?.includeName) {
-                const nameResponse = await fetch(`http://localhost:8080/getValue?path=teams.team${team}.teamName`);
-                teamName = await nameResponse.text();
-            }
-
-            if ( !includeOptions?.includeLogo ){
-                if (operation === 'increment'){
-                    ev.action.setImage('imgs/actions/counter/button-positive@2x.png');
-                } else if (operation === 'decrement'){
-                    ev.action.setImage('imgs/actions/counter/button-negative@2x.png');
+            // Set appropriate button image based on operation mode
+            if (!includeOptions?.includes('includeLogo')) {
+                if (operation === 'increment') {
+                    await ev.action.setImage('imgs/actions/counter/button-positive@2x.png');
+                } else if (operation === 'decrement') {
+                    await ev.action.setImage('imgs/actions/counter/button-negative@2x.png');
+                } else {
+                    await ev.action.setImage('imgs/actions/counter/button@2x.png');
                 }
-
-
-            } else if (includeOptions?.includeLogo) {
+            } else {
                 await this.setTeamIcon(team, ev.action);
             }
 
-    
-
-
-
-
+            // Update the button state with fetched data
             await this.updateButtonState(ev, score, teamName);
         } catch (error) {
             streamDeck.logger.error(`Failed to initialize button state for team ${team}:`, error);
@@ -174,7 +172,7 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
 
         } catch (error) {
             streamDeck.logger.error(`Failed to initialize button for team ${team}:`, error);
-            await ev.action.setImage('imgs/actions/counter/icon@2x.png');
+            await ev.action.setImage('imgs/actions/counter/button@2x.png');
         }
     }
 
@@ -182,7 +180,12 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
         const { settings } = ev.payload;
         if (!settings.team) {
             streamDeck.logger.error('No team selected');
-            ev.action.setTitle('No team');
+            ev.action.setTitle('Select Team');
+            return;
+        }
+
+        // Don't process key presses for display-only mode
+        if (settings.operation === 'display') {
             return;
         }
 
@@ -193,7 +196,6 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
             await ev.action.setSettings(settings);
             AdjustScore.eventEmitter.emit(`scoreUpdated:${settings.team}`, score);
         } catch (error) {
-            // show alert
             ev.action.showAlert();
             streamDeck.logger.error(`Error updating score for team ${settings.team}:`, error);
         }
@@ -202,27 +204,18 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
     override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<CounterSettings>): Promise<void> {
         const { team, includeOptions, operation } = ev.payload.settings;
 
-
-
         if (!team) {
-            streamDeck.logger.error('No team selected');
-            ev.action.setTitle('No team');
+            await ev.action.setTitle('Select Team');
             return;
         }
 
-        // Use existing score and name from settings
-        const currentScore = ev.payload.settings.count ?? 0;
-        await this.updateButtonState(ev, currentScore);
-
-        if (includeOptions?.includes('includeLogo')) {
-            await this.setTeamIcon(team, ev.action);
-        } 
-
-        if ( operation === 'increment'){
-            ev.action.setImage('imgs/actions/counter/button-negative@2x.png');
+        try {
+            // Always initialize the button state when settings change
+            await this.initializeButtonState(ev);
+        } catch (error) {
+            streamDeck.logger.error(`Error applying settings:`, error);
+            ev.action.showAlert();
         }
-        await ev.action.setImage('');
-        
     }
 
     override async onWillDisappear(ev: WillDisappearEvent<CounterSettings>): Promise<void> {
