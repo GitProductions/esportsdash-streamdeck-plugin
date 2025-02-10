@@ -61,14 +61,14 @@
                     return;
                 }
 
-                if (typeof teams === 'object') {
+                if (Array.isArray(teams)) {
                     // Clear existing options
                     const options = selectElement.querySelectorAll('option');
                     options.forEach(option => option.remove());
 
                     teams.forEach(team => {
                         const option = document.createElement('option');
-                        option.value = team.id.toString(); // Use ID as the value
+                        option.value = team.id; // Use full team ID
                         option.logo = team.logo;
                         option.textContent = team.name;
                         selectElement.appendChild(option);
