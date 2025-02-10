@@ -77,7 +77,7 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
             }
 
             // Set the button title with team information
-            ev.action.setTitle(`${selectedTeam.name}`);
+            ev.action.setTitle(`SELECT\n${selectedTeam.name}`);
 
             // Process and set the team logo
             try {
