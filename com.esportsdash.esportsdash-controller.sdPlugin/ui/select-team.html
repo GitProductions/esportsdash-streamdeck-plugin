@@ -61,28 +61,19 @@
                     return;
                 }
 
-                // assure tramlist is an object
                 if (typeof teams === 'object') {
                     // Clear existing options
                     const options = selectElement.querySelectorAll('option');
                     options.forEach(option => option.remove());
 
-
                     teams.forEach(team => {
                         const option = document.createElement('option');
-                        option.value = team.name;
+                        option.value = team.id.toString(); // Use ID as the value
                         option.logo = team.logo;
                         option.textContent = team.name;
                         selectElement.appendChild(option);
                     });
                 }
-                // else {
-                //     const option = document.createElement('option');
-                //     option.value = '1';
-                //     option.textContent = `ERROR: Teams not an Object ${teams}`;
-                //     selectElement.appendChild(option);
-                // }
-
             }
         });
     </script>
