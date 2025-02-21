@@ -6,7 +6,7 @@ import { WindowControls } from './actions/window-controls';
 import { UpdateMatch } from './actions/update-match';
 import { SetTeamName } from './actions/set-team-name';
 
-// import { SelectTeam } from './actions/select-team';
+import { SelectTeam } from './actions/select-team';
 
 import { SetScore } from './actions/set-score';
 
@@ -22,7 +22,7 @@ streamDeck.actions.registerAction(new SwapTeams());
 streamDeck.actions.registerAction(new UpdateMatch());
 streamDeck.actions.registerAction(new WindowControls());
 streamDeck.actions.registerAction(new SetTeamName());
-// streamDeck.actions.registerAction(new SelectTeam());
+streamDeck.actions.registerAction(new SelectTeam());
 
 // SelectGameConfig action will be simiiar to above where it fetches names of available game configs and then lets user choose
 
