@@ -1,9 +1,5 @@
 import streamDeck from "@elgato/streamdeck";
-import { promises as fs } from 'fs';
-import path from 'path';
 import fetch from 'node-fetch';
-// Temporarily remove sharp import to test
-// import sharp from 'sharp';
 
 import { EventPayload, SelectTeamSettings } from '../types/types';
 
