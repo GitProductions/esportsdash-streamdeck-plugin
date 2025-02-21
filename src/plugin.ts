@@ -11,7 +11,6 @@ import { SelectTeam } from './actions/select-team';
 import { SetScore } from './actions/set-score';
 
 import socket from './websocket/socket';
-import { ROOMS, EVENTS } from './websocket/socketConstants';
 
 // Set up logging for debugging - trace for everything
 streamDeck.logger.setLevel(LogLevel.TRACE);
