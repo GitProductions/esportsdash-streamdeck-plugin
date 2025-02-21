@@ -23,7 +23,6 @@ const config = {
 			return url.pathToFileURL(path.resolve(path.dirname(sourcemapPath), relativeSourcePath)).href;
 		}
 	},
-	external: ['canvas'], // Exclude the canvas package
 	plugins: [
 		{
 			name: "watch-externals",
