@@ -8,55 +8,29 @@ import { SetTeamName } from './actions/set-team-name';
 
 import { SelectTeam } from './actions/select-team';
 
+import { SetScore } from './actions/set-score';
+
 import socket from './websocket/socket';
+import { ROOMS, EVENTS } from './websocket/socketConstants';
 
 // Set up logging for debugging - trace for everything
 streamDeck.logger.setLevel(LogLevel.TRACE);
 
 streamDeck.actions.registerAction(new AdjustScore());
+streamDeck.actions.registerAction(new SetScore());
 streamDeck.actions.registerAction(new ResetMatch());
 streamDeck.actions.registerAction(new SwapTeams());
 streamDeck.actions.registerAction(new UpdateMatch());
 streamDeck.actions.registerAction(new WindowControls());
 streamDeck.actions.registerAction(new SetTeamName());
-
-// something in select team causes it not to work when compiled???
 streamDeck.actions.registerAction(new SelectTeam());
 
 // SelectGameConfig action will be simiiar to above where it fetches names of available game configs and then lets user choose
 
 
 
-type Team = {
-    id: number;
-    name: string;
-    logo: string;
-};
+// gotta rework and rename all these socket events to make more sense and easier to understand and update
 
-//// - NOTE   ----------- ////
-// this is likely needed or something similar IF we are connecing AFTER the app has been started..
-// because the app would have already fired this 'onstartup' event... right?
-// -----------
-
-
-// async function fetchTeamList(): Promise<Team[]> {
-//     try {
-//         // this should be swapped to a socket event that gets sent on startup and then again if it changes
-//         // for now we use this...
-//         const response = await fetch('http://localhost:8080/api/teams/teamlist');
-//         let fullTeamList = await response.json() as Team[];
-//         console.log('Modified team list:', fullTeamList);
-//         streamDeck.settings.setGlobalSettings({
-//             teamList: fullTeamList
-//         });
-
-//         return fullTeamList;
-//     } catch (error) {
-//         console.error('Error fetching team list:', error);
-//         return [];
-//     }
-// }
-// fetchTeamList();
 
 
 
@@ -72,29 +46,6 @@ socket.on('teamManager', (data) => {
         case 'onStartup':
             streamDeck.settings.setGlobalSettings({
                 teamList: data.teams
-                // teamList: []
-                // teamList:  [
-                //     {
-                //         id: 1,
-                //         name: 'Cat 1',
-                //         logo: 'https://placecats.com/200/200'
-                //     },
-                //     {
-                //         id: 2,
-                //         name: 'Cat 2',
-                //         logo: 'https://placecats.com/200/200'
-                //     },
-                //     {
-                //         id: 3,
-                //         name: 'Cat 3',
-                //         logo: 'https://placecats.com/200/200'
-                //     },
-                //     {
-                //         id: 4,
-                //         name: 'Cat 4',
-                //         logo: 'https://placecats.com/200/200'
-                //     }   
-                // ]
             });   
             streamDeck.logger.info('Received team manager startup:', data);
             break;
@@ -127,7 +78,7 @@ socket.on('updateMatchData', (data: MatchUpdate) => {
     // });
 
 
-    // aking full 'teamUpdate' and splitting into individual team updates.. 
+    // taking full 'teamUpdate' and splitting into individual team updates.. 
     // we should be data.type = teamScore, teamName etc.. teamUpdate can be when doing the WHOLE team on select maybe?
     if (data.type === 'teamUpdate' && data.teams) {
         Object.entries(data.teams).forEach(([teamKey, teamData]: [string, TeamData]) => {
@@ -153,8 +104,10 @@ socket.on('updateMatchData', (data: MatchUpdate) => {
                     teamData.teamName
                 );
             }
+            
         });
-    }
+
+    } 
 
 
 

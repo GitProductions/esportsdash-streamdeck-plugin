@@ -1,6 +1,6 @@
 {
 	"Name": "EsportsDash Controller",
-	"Version": "0.1.0.2",
+	"Version": "0.1.0.4",
 	"Author": "EsportsDash",
 	"Actions": [
 		{
@@ -9,6 +9,22 @@
 			"Icon": "imgs/actions/score/score",
 			"Tooltip": "Adjust the by incrementing or decrementing by one.",
 			"PropertyInspectorPath": "ui/adjust-score.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/button",
+					"TitleAlignment": "bottom"
+				}
+			]
+		},
+		{
+			"Name": "Set Score",
+			"UUID": "com.esportsdash.esportsdash-controller.setscore",
+			"Icon": "imgs/actions/score/score",
+			"Tooltip": "Set the score to a specific value.",
+			"PropertyInspectorPath": "ui/set-score.html",
 			"Controllers": [
 				"Keypad"
 			],

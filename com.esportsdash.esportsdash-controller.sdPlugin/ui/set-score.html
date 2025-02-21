@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <title>Set Score</title>
+    <meta charset="utf-8" />
+    <script src="https://sdpi-components.dev/releases/v3/sdpi-components.js"></script>
+    <link rel="stylesheet" href="./resources/css/spdi.css">
+
+</head>
+
+<body>
+    <div class="sdpi-heading">Set Score</div>
+    <div class="sdpi-item" style="padding-top: 8px;">
+        <span> Set Score in Dashboard </span>
+    </div>
+    <div class="sdpi-item">
+        <span> Must 'Update Match' to apply new score</span>
+    </div>
+
+
+    <!-- team1, team2 list -->
+    <sdpi-item label="Select">
+        <sdpi-select setting="teamSide" placeholder="Please choose a team">
+            <option value="1">Team 1</option>
+            <option value="2">Team 2</option>
+        </sdpi-select>
+    </sdpi-item>
+
+    <sdpi-item label="Score">
+        <sdpi-textfield setting="teamScore" placeholder="Enter Score" id="scoreInput"></sdpi-textfield>
+    </sdpi-item>
+
+
+    <sdpi-item label="Force Update">
+        <sdpi-checkbox setting="forceUpdate"
+            label="This will force a dashboard update after resetting if enabled."></sdpi-checkbox>
+    </sdpi-item>
+
+
+
+
+
+
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const scoreInput = document.getElementById('scoreInput');
+        scoreInput.addEventListener('input', function(e) {
+            const value = parseInt(e.target.value);
+            if (isNaN(value) || value < 0) {
+                e.target.value = '';
+            }
+        });
+    });
+</script>
+</html>
