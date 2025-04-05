@@ -1,12 +1,8 @@
 import streamDeck, { action, KeyDownEvent, SingletonAction, WillAppearEvent, WillDisappearEvent, DidReceiveSettingsEvent } from "@elgato/streamdeck";
 import socket from '../websocket/socket';
 import { EventPayload, SelectTeamSettings, Team, Data } from '../types/types';
-
 import { ImageLoader } from '../utils/image-loader';
 
-
-
-let fullTeamList: Team[] = [];
 
 @action({ UUID: "com.esportsdash.esportsdash-controller.selectteam" })
 export class SelectTeam extends SingletonAction<SelectTeamSettings> {
@@ -21,9 +17,23 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
         socket.on('disconnect', () => {
             this.updateButtonTitle(false);
         });
+
+            streamDeck.settings.onDidReceiveGlobalSettings(async (event) => {
+                const settings = event.settings;
+                if (settings?.teamList && Array.isArray(settings.teamList)) {
+                    streamDeck.logger.info('Updating team list from global settings');
+                    this.teams = settings.teamList as Team[];
+                    
+                    // Update all active actions when global settings change
+                    this.actions.forEach(async (action) => {
+                        const actionSettings = await action.getSettings<SelectTeamSettings>();
+                        if (actionSettings.teamList) {
+                            await this.setButtonInfo({ action, payload: { settings: actionSettings } });
+                        }
+                    });
+                }
+            });
     }
-
-
 
     private updateButtonTitle(isConnected: boolean): void {
         this.actions.forEach(action => {
@@ -31,9 +41,6 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
             action.setImage(isConnected ? '' : 'imgs/actions/disconnected.png');
         });
     }
-
-
-
 
     private async setButtonInfo(ev: EventPayload) {
         const { teamSide, teamList } = ev.payload.settings;
@@ -54,12 +61,9 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
                 return;
             }
 
-            // Set the button title with team information
             ev.action.setTitle(`SELECT\n${selectedTeam.name}`);
 
-            // Process and set the team logo
             try {
-                // const base64Image = await ImageLoader.processImage(selectedTeam.logo);
                 const base64Image = await ImageLoader._fetchImageAsBase64ss(ev, selectedTeam.logo);
                 await ev.action.setImage(base64Image);
             } catch (imageError) {
@@ -67,7 +71,6 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
                 await ev.action.setImage('imgs/actions/selectteam/default.png');
             }
 
-            // Update settings with complete team data
             const updatedSettings = {
                 ...ev.payload.settings,
                 teamLogo: selectedTeam.logo,
@@ -82,53 +85,27 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
         }
     }
 
-
-
-
-
-
-    
     override async onWillAppear(ev: WillAppearEvent<SelectTeamSettings>): Promise<void> {
         this.updateButtonTitle(socket.connected);
 
         try {
-            // Initialize teams from global settings
-            const globalSettings = await streamDeck.settings.getGlobalSettings();
-            if (globalSettings?.teamList && Array.isArray(globalSettings.teamList)) {
-                streamDeck.logger.info('Setting initial team list');
-                this.teams = globalSettings.teamList as Team[];
-                
-                if (ev.payload.settings.teamList) {
-                    await this.setButtonInfo(ev);
+            // if (this.teams.length === 0) {
+                const globalSettings = await streamDeck.settings.getGlobalSettings();
+                if (globalSettings?.teamList && Array.isArray(globalSettings.teamList)) {
+                    streamDeck.logger.info('Setting initial team list');
+                    this.teams = globalSettings.teamList as Team[];
                 }
+            // }
+
+            // Set button info only if teamList is present
+            if (ev.payload.settings.teamList) {
+                await this.setButtonInfo(ev);
             }
-
-
-
-            // Listen for global settings updates ie things from the esportsdash socket
-            streamDeck.settings.onDidReceiveGlobalSettings(async (event) => {
-                const settings = event.settings;
-                if (settings?.teamList && Array.isArray(settings.teamList)) {
-                    streamDeck.logger.info('Updating team list from global settings');
-                    this.teams = settings.teamList as Team[];
-                    
-                    if (this.teams.length > 0 && ev.payload.settings.teamList) {
-                        await this.setButtonInfo(ev);
-                    }
-                }
-            });
         } catch (error) {
             streamDeck.logger.error('Error in onWillAppear:', error);
             ev.action.setTitle('Error');
         }
     }
-
-
-
-
-
-
-
 
     override async onKeyDown(ev: KeyDownEvent<SelectTeamSettings>): Promise<void> {
         if (!socket.connected) {
@@ -144,7 +121,6 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
         }
 
         try {
-            // Using teamName for the API call since that's what the backend expects
             const response = await fetch(`http://localhost:8080/api/setTeamName?team=${teamSide}&name=${teamName}`);
             const data = await response.json() as Data;
 
@@ -160,21 +136,15 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
         }
     }
 
-
-
     override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<SelectTeamSettings>): Promise<void> {
         streamDeck.logger.info('Received settings:', ev.payload.settings);
         
-        // Ensure we refresh the image when settings change
         if (ev.payload.settings.teamList) {
             await this.setButtonInfo(ev);
         }
     }
 
-
-
     override async onWillDisappear(ev: WillDisappearEvent<SelectTeamSettings>): Promise<void> {
-        // Clean up if needed
+        // No listener cleanup needed since it's only set once in constructor
     }
 }
-
