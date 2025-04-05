@@ -17,8 +17,10 @@ const sdPlugin = "com.esportsdash.esportsdash-controller.sdPlugin";
 const config = {
 	input: "src/plugin.ts",
 	output: {
-		file: `${sdPlugin}/bin/plugin.js`,
+		dir: `${sdPlugin}/bin/`,
+		entryFileNames: 'plugin.js',
 		sourcemap: isWatching,
+		inlineDynamicImports: true,
 		sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
 			return url.pathToFileURL(path.resolve(path.dirname(sourcemapPath), relativeSourcePath)).href;
 		}
