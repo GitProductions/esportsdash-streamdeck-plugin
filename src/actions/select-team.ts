@@ -9,7 +9,6 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
 
     constructor() {
         super();
-        streamDeck.logger.info('SelectTeam constructor called');
 
         socket.on('connect', () => {
             this.updateButtonTitle(true);
