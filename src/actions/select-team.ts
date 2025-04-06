@@ -18,6 +18,18 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
             this.updateButtonTitle(false);
         });
 
+
+        // Notes on onDidReceiveGlobalSettings behavior:
+        // - Was firing 3x per button on startup
+        // - Moving to onWillAppear causes excessive firing due to repeated listener registration.
+        // - Only triggers via getGlobalSettings or Property Inspector updates, not setGlobalSettings alone.
+        // - Property Inspector is the Stream Deck UI; plugin.js sets globals but needs getGlobalSettings to notify actions.
+        // - Workaround: After setGlobalSettings in plugin.js, call getGlobalSettings to fire this event.
+        // - Docs confirm it’s tied to getGlobalSettings or UI updates, not passive changes.
+        // - Keep in constructor to avoid over-firing; fetch in onWillAppear if needed.
+        // - Multiple firings match number of action instances (buttons).
+        // - Stable solution: set globals, fetch globals, update buttons.
+
         streamDeck.settings.onDidReceiveGlobalSettings(async (event) => {
             streamDeck.logger.info('onDidReceiveGlobalSettings fired with settings:', event.settings);
             const settings = event.settings;
@@ -25,7 +37,7 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
             if (settings?.teamList && Array.isArray(settings.teamList)) {
                 streamDeck.logger.info('Updating team list from global settings');
                 this.teams = settings.teamList as Team[];
-                
+
                 streamDeck.logger.info(`Team list updated, length: ${this.teams.length}`);
                 this.actions.forEach(async (action) => {
                     const actionSettings = await action.getSettings<SelectTeamSettings>();
@@ -91,23 +103,7 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
     }
 
     override async onWillAppear(ev: WillAppearEvent<SelectTeamSettings>): Promise<void> {
-        // this.updateButtonTitle(socket.connected);
-
-        try {
-            const globalSettings = await streamDeck.settings.getGlobalSettings();
-            streamDeck.logger.info('onWillAppear fetched global settings:', globalSettings);
-            if (globalSettings?.teamList && Array.isArray(globalSettings.teamList)) {
-                streamDeck.logger.info('Setting initial team list');
-                this.teams = globalSettings.teamList as Team[];
-            }
-
-            if (ev.payload.settings.teamList) {
-                await this.setButtonInfo(ev);
-            }
-        } catch (error) {
-            streamDeck.logger.error('Error in onWillAppear:', error);
-            ev.action.setTitle('Error');
-        }
+        // the global settings event is firing we dont seem to need this
     }
 
     override async onKeyDown(ev: KeyDownEvent<SelectTeamSettings>): Promise<void> {
@@ -141,7 +137,7 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
 
     override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<SelectTeamSettings>): Promise<void> {
         streamDeck.logger.info('Received settings:', ev.payload.settings);
-        
+
         if (ev.payload.settings.teamList) {
             await this.setButtonInfo(ev);
         }
