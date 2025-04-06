@@ -3,13 +3,14 @@ import socket from '../websocket/socket';
 import { EventPayload, SelectTeamSettings, Team, Data } from '../types/types';
 import { ImageLoader } from '../utils/image-loader';
 
-
 @action({ UUID: "com.esportsdash.esportsdash-controller.selectteam" })
 export class SelectTeam extends SingletonAction<SelectTeamSettings> {
     private teams: Team[] = [];
 
     constructor() {
         super();
+        streamDeck.logger.info('SelectTeam constructor called');
+
         socket.on('connect', () => {
             this.updateButtonTitle(true);
         });
@@ -18,21 +19,26 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
             this.updateButtonTitle(false);
         });
 
-            streamDeck.settings.onDidReceiveGlobalSettings(async (event) => {
-                const settings = event.settings;
-                if (settings?.teamList && Array.isArray(settings.teamList)) {
-                    streamDeck.logger.info('Updating team list from global settings');
-                    this.teams = settings.teamList as Team[];
-                    
-                    // Update all active actions when global settings change
-                    this.actions.forEach(async (action) => {
-                        const actionSettings = await action.getSettings<SelectTeamSettings>();
-                        if (actionSettings.teamList) {
-                            await this.setButtonInfo({ action, payload: { settings: actionSettings } });
-                        }
-                    });
-                }
-            });
+        streamDeck.settings.onDidReceiveGlobalSettings(async (event) => {
+            streamDeck.logger.info('onDidReceiveGlobalSettings fired with settings:', event.settings);
+            const settings = event.settings;
+
+            if (settings?.teamList && Array.isArray(settings.teamList)) {
+                streamDeck.logger.info('Updating team list from global settings');
+                this.teams = settings.teamList as Team[];
+                
+                streamDeck.logger.info(`Team list updated, length: ${this.teams.length}`);
+                this.actions.forEach(async (action) => {
+                    const actionSettings = await action.getSettings<SelectTeamSettings>();
+                    streamDeck.logger.info(`Processing action with settings:`, actionSettings);
+                    if (actionSettings.teamList) {
+                        await this.setButtonInfo({ action, payload: { settings: actionSettings } });
+                    }
+                });
+            } else {
+                streamDeck.logger.warn('No valid teamList in global settings');
+            }
+        });
     }
 
     private updateButtonTitle(isConnected: boolean): void {
@@ -86,18 +92,16 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
     }
 
     override async onWillAppear(ev: WillAppearEvent<SelectTeamSettings>): Promise<void> {
-        this.updateButtonTitle(socket.connected);
+        // this.updateButtonTitle(socket.connected);
 
         try {
-            // if (this.teams.length === 0) {
-                const globalSettings = await streamDeck.settings.getGlobalSettings();
-                if (globalSettings?.teamList && Array.isArray(globalSettings.teamList)) {
-                    streamDeck.logger.info('Setting initial team list');
-                    this.teams = globalSettings.teamList as Team[];
-                }
-            // }
+            const globalSettings = await streamDeck.settings.getGlobalSettings();
+            streamDeck.logger.info('onWillAppear fetched global settings:', globalSettings);
+            if (globalSettings?.teamList && Array.isArray(globalSettings.teamList)) {
+                streamDeck.logger.info('Setting initial team list');
+                this.teams = globalSettings.teamList as Team[];
+            }
 
-            // Set button info only if teamList is present
             if (ev.payload.settings.teamList) {
                 await this.setButtonInfo(ev);
             }
