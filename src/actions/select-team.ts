@@ -31,21 +31,12 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
         // - Stable solution: set globals, fetch globals, update buttons.
 
         streamDeck.settings.onDidReceiveGlobalSettings(async (event) => {
-            streamDeck.logger.info('onDidReceiveGlobalSettings fired with settings:', event.settings);
             const settings = event.settings;
 
             if (settings?.teamList && Array.isArray(settings.teamList)) {
                 streamDeck.logger.info('Updating team list from global settings');
                 this.teams = settings.teamList as Team[];
 
-                streamDeck.logger.info(`Team list updated, length: ${this.teams.length}`);
-                this.actions.forEach(async (action) => {
-                    const actionSettings = await action.getSettings<SelectTeamSettings>();
-                    streamDeck.logger.info(`Processing action with settings:`, actionSettings);
-                    if (actionSettings.teamList) {
-                        await this.setButtonInfo({ action, payload: { settings: actionSettings } });
-                    }
-                });
             } else {
                 streamDeck.logger.warn('No valid teamList in global settings');
             }
@@ -101,7 +92,7 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
                 teamId: selectedTeam.id
             };
             await ev.action.setSettings(updatedSettings);
-
+            return;
         } catch (error) {
             streamDeck.logger.error('Error in setButtonInfo:', error);
             ev.action.setTitle('Error');
@@ -109,6 +100,11 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
     }
 
     override async onWillAppear(ev: WillAppearEvent<SelectTeamSettings>): Promise<void> {
+        if(!socket.connected) {
+            ev.action.showAlert();
+            this.updateButtonTitle(false);
+            return;
+        }
         // the global settings event is firing we dont seem to need this
     }
 
