@@ -4,6 +4,7 @@ export type SelectTeamSettings = {
     teamLogo?: string;
     teamName?: string; 
     teamId?: string;
+    showTeamName?: boolean;
 };
 
 export type Team = {

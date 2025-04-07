@@ -46,7 +46,12 @@ socket.on('teamManager', (data) => {
             streamDeck.settings.setGlobalSettings({
                 teamList: data.teams
             });   
-            streamDeck.logger.info('Received team manager startup:', data);
+
+            // Triggering any buttons which happen to have the globalsettings listener to update the button 
+            // Later this will be moved to 'teamsAdded' or some other event other than onStartup but this is what the app is using now also..
+            streamDeck.settings.getGlobalSettings().then((globalSettings) => {
+                streamDeck.logger.info('onStartup fetched global settings:', globalSettings);
+            });
             break;
         // case 'teamAdded':
         //     streamDeck.settings.setGlobalSettings({
