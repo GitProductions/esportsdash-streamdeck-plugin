@@ -21,6 +21,19 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
         socket.on('disconnect', () => {
             this.updateButtonTitle(false);
         });
+
+        // Listen for global settings updates ie things from the esportsdash socket
+        streamDeck.settings.onDidReceiveGlobalSettings(async (event) => {
+            const settings = event.settings;
+            if (settings?.teamList && Array.isArray(settings.teamList)) {
+                streamDeck.logger.info('Updating team list from global settings');
+                this.teams = settings.teamList as Team[];
+                
+                // if (this.teams.length > 0 && ev.payload.settings.teamList) {
+                //     await this.setButtonInfo(ev);
+                // }
+            }
+        });
     }
 
 
@@ -75,7 +88,7 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
                 teamId: selectedTeam.id
             };
             await ev.action.setSettings(updatedSettings);
-
+            return;
         } catch (error) {
             streamDeck.logger.error('Error in setButtonInfo:', error);
             ev.action.setTitle('Error');
@@ -89,7 +102,11 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
 
     
     override async onWillAppear(ev: WillAppearEvent<SelectTeamSettings>): Promise<void> {
-        this.updateButtonTitle(socket.connected);
+        if(!socket.connected) {
+            ev.action.showAlert();
+            this.updateButtonTitle(false);
+            return;
+        }
 
         try {
             // Initialize teams from global settings
@@ -105,18 +122,6 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
 
 
 
-            // Listen for global settings updates ie things from the esportsdash socket
-            streamDeck.settings.onDidReceiveGlobalSettings(async (event) => {
-                const settings = event.settings;
-                if (settings?.teamList && Array.isArray(settings.teamList)) {
-                    streamDeck.logger.info('Updating team list from global settings');
-                    this.teams = settings.teamList as Team[];
-                    
-                    if (this.teams.length > 0 && ev.payload.settings.teamList) {
-                        await this.setButtonInfo(ev);
-                    }
-                }
-            });
         } catch (error) {
             streamDeck.logger.error('Error in onWillAppear:', error);
             ev.action.setTitle('Error');
