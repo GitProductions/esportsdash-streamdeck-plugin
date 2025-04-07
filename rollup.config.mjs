@@ -20,7 +20,7 @@ const config = {
 		dir: `${sdPlugin}/bin/`,
 		entryFileNames: 'plugin.js',
 		sourcemap: isWatching,
-		inlineDynamicImports: true,
+		// inlineDynamicImports: true,
 		sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
 			return url.pathToFileURL(path.resolve(path.dirname(sourcemapPath), relativeSourcePath)).href;
 		}
