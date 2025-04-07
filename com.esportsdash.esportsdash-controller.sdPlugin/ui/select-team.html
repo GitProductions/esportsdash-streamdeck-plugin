@@ -26,7 +26,7 @@
                 // console.log("GLOBAL SETTINGS", response);
 
                 if (fullTeamList) {
-                    console.log('Settings fetched:', fullTeamList);
+                    // console.log('Settings fetched:', fullTeamList);
                     updateTeamList(fullTeamList);
                 }
 
@@ -100,6 +100,11 @@
         <sdpi-select id="teamList" setting="teamList" placeholder="Please choose a team">
             <option value="1">NOT LOADED - Check Connection</option>
         </sdpi-select>
+    </sdpi-item>
+
+    <!-- show team name option checkbox -->
+    <sdpi-item label="Show Team Name" style="padding-top: 8px;">
+        <sdpi-checkbox setting="showTeamName" checked="true"></sdpi-checkbox>
     </sdpi-item>
 
 

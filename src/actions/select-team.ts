@@ -60,7 +60,7 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
     }
 
     private async setButtonInfo(ev: EventPayload) {
-        const { teamSide, teamList } = ev.payload.settings;
+        const { teamSide, teamList, showTeamName } = ev.payload.settings;
 
         if (!teamList || !teamSide || !this.teams || this.teams.length === 0) {
             ev.action.setTitle('Select\nTeam');
@@ -78,7 +78,13 @@ export class SelectTeam extends SingletonAction<SelectTeamSettings> {
                 return;
             }
 
-            ev.action.setTitle(`SELECT\n${selectedTeam.name}`);
+            if (showTeamName) {
+                ev.action.setTitle(`SELECT\n${selectedTeam.name}`);
+            } else {
+                ev.action.setTitle(``);
+            }
+
+            // ev.action.setTitle(`SELECT\n${selectedTeam.name}`);
 
             try {
                 const base64Image = await ImageLoader._fetchImageAsBase64ss(ev, selectedTeam.logo);
