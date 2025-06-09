@@ -2,24 +2,33 @@
 <html>
 
 <head lang="en">
-    <title>Window Controls</title>
+    <title>Countdown Controls</title>
     <meta charset="utf-8" />
     <script src="https://sdpi-components.dev/releases/v3/sdpi-components.js"></script>
     <link rel="stylesheet" href="./resources/css/spdi.css">
 </head>
 
 <body>
-  <div class="sdpi-heading">Window Controls</div>
+  <div class="sdpi-heading">Countdown Controls</div>
 
 
   <sdpi-item label = "Select" >
     <sdpi-select setting = "action" placeholder = "Please choose an option" >
     <option value = "start" > Start Countdown </option>
+    <option value = "pause" > Pause Countdown </option>
     <option value = "stop" > Stop Countdown </option>
     <option value = "reset" > Reset Countdown </option>
+    <option value = "togglevisibility" > Toggle Visibility </option>
+
+
     <option value = "add" > Add Time </option>
 
     </sdpi-select>
+
+    <!-- if add time or subtract time is selcted then we need to show an input value  -->
+    <sdpi-input setting="value" placeholder="Enter time in seconds" type="number" min="0" max="3600"></sdpi-input>
+
+
     
 </body>
 

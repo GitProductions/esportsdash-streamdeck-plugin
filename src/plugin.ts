@@ -10,6 +10,8 @@ import { SelectTeam } from './actions/select-team';
 
 import { SetScore } from './actions/set-score';
 
+import { CountdownControls } from './actions/countdown-controls';
+
 import socket from './websocket/socket';
 
 // Set up logging for debugging - trace for everything
@@ -23,6 +25,7 @@ streamDeck.actions.registerAction(new UpdateMatch());
 streamDeck.actions.registerAction(new WindowControls());
 streamDeck.actions.registerAction(new SetTeamName());
 streamDeck.actions.registerAction(new SelectTeam());
+streamDeck.actions.registerAction(new CountdownControls());
 
 // SelectGameConfig action will be simiiar to above where it fetches names of available game configs and then lets user choose
 
