@@ -23,6 +23,7 @@ export class CountdownControls extends SingletonAction<CountdownControlSettings>
 
 	override async onWillAppear(ev: WillAppearEvent<CountdownControlSettings>): Promise<void> {
         const action = ev.payload.settings?.action;
+        const value = ev.payload.settings?.value;
 
         if (!socket.connected) {
             this.updateButtonTitle(false);
@@ -35,7 +36,11 @@ export class CountdownControls extends SingletonAction<CountdownControlSettings>
         }
 
         try {
-            await ev.action.setTitle(actionDisplayMap[action]);
+            if (value !== undefined) {
+                await ev.action.setTitle(`${actionDisplayMap[action]}\n ${value}`);
+            } else {
+                await ev.action.setTitle(actionDisplayMap[action]);
+            }
         } catch (error) {
             streamDeck.logger.error('Failed to set title:', error);
             await ev.action.setTitle('Error');
@@ -44,16 +49,18 @@ export class CountdownControls extends SingletonAction<CountdownControlSettings>
 
 	override async onKeyDown(ev: KeyDownEvent<CountdownControlSettings>): Promise<void> {
 		if (ev.payload.settings.action) {
-
 			streamDeck.logger.info(`Countdown Controls Action: ${ev.payload.settings.action}`);
-            // in future it wil be api/window/${ev.payload.settings.operation}
-        	fetch(`http://localhost:8080/api/countdown/?action=${ev.payload.settings.action}`)
+			if (ev.payload.settings.action === 'add' || ev.payload.settings.action === 'subtract') {
+				const value = ev.payload.settings.value ?? 0;
+				fetch(`http://localhost:8080/api/countdown/?action=${ev.payload.settings.action}&value=${value}`);
+			} else {
+				fetch(`http://localhost:8080/api/countdown/?action=${ev.payload.settings.action}`);
+			}
 		}
-
 	}
 
 	override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<CountdownControlSettings>): Promise<void> {
-		const { action } = ev.payload.settings;
+		const { action, value} = ev.payload.settings;
 		if (!action) {
 			streamDeck.logger.error('No operation selected');
 			ev.action.setTitle('No operation');
@@ -62,7 +69,12 @@ export class CountdownControls extends SingletonAction<CountdownControlSettings>
 
 		try {
 			// show key of the operation
-			await ev.action.setTitle(actionDisplayMap[action].replace(' ', '\n'));
+            if (value !== undefined) {
+                await ev.action.setTitle(`${actionDisplayMap[action]}\n ${value}`);
+            }
+            else {
+			    await ev.action.setTitle(actionDisplayMap[action].replace(' ', '\n'));
+            }
 			// await ev.action.setTitle(operation);
 		} catch (error) {
 			streamDeck.logger.error(`Failed to initialize button for operation ${action}:`, error);
@@ -82,6 +94,7 @@ type ActionType =
     | 'reset'
     | 'togglevisibility'
     | 'add'
+    | 'subtract';
 
 
 type CountdownControlSettings = {
@@ -95,5 +108,6 @@ const actionDisplayMap: Record<ActionType, string> = {
     'pause': 'Pause\nCountdown',
     'reset': 'Reset\nCountdown',
     'togglevisibility': 'Toggle\nVisibility',
-    'add': 'Add\nTime'
+    'add': 'Add Time',
+    'subtract': 'Subtract Time'
 };
