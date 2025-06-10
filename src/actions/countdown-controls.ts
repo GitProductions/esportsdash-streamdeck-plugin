@@ -1,5 +1,7 @@
-import streamDeck, { action, KeyDownEvent, SingletonAction, WillAppearEvent, DidReceiveSettingsEvent} from "@elgato/streamdeck";
+import streamDeck, { action, type KeyDownEvent, SingletonAction, WillAppearEvent, DidReceiveSettingsEvent} from "@elgato/streamdeck";
+import {  type JsonValue,  type SendToPluginEvent } from "@elgato/streamdeck";
 import socket from '../websocket/socket';
+import type { DataSourcePayload, DataSourceResult } from "../sdpi";
 
 
 @action({ UUID: "com.esportsdash.esportsdash-controller.countdowncontrols" })
@@ -82,6 +84,50 @@ export class CountdownControls extends SingletonAction<CountdownControlSettings>
 		
 	}
 
+    // override onSendToPlugin(ev: SendToPluginEvent<JsonValue, CountdownControlSettings>): Promise<void> | void {
+	// 	// Check if the payload is requesting a data source, i.e. the structure is { event: string }
+	// 	if (ev.payload instanceof Object && "event" in ev.payload && ev.payload.event === "getProducts") {
+	// 		// Send the product ranges to the property inspector.
+	// 		streamDeck.ui.current?.sendToPropertyInspector({
+	// 			event: "getProducts",
+	// 			items: this.#getStreamDeckProducts(),
+	// 		} satisfies DataSourcePayload);
+	// 	}
+	// }
+
+
+    // #getStreamDeckProducts(): DataSourceResult {
+	// 	return [
+	// 		{
+	// 			value: "https://www.elgato.com/uk/en/p/stream-deck-plus",
+	// 			label: "Stream Deck +",
+	// 		},
+	// 		{
+	// 			value: "https://www.elgato.com/uk/en/p/stream-deck-mini",
+	// 			label: "Stream Deck Mini",
+	// 		},
+	// 		{
+	// 			value: "https://www.elgato.com/uk/en/p/stream-deck",
+	// 			label: "Stream Deck MK.2",
+	// 		},
+	// 		{
+	// 			value: "https://www.elgato.com/uk/en/p/stream-deck-neo",
+	// 			label: "Stream Deck Neo",
+	// 		},
+	// 		{
+	// 			value: "https://www.elgato.com/uk/en/p/stream-deck-pedal",
+	// 			label: "Stream Deck Pedal",
+	// 		},
+	// 		{
+	// 			value: "https://www.elgato.com/uk/en/p/stream-deck-scissor-keys",
+	// 			label: "Stream Deck Scissor Keys",
+	// 		},
+	// 		{
+	// 			value: "https://www.elgato.com/uk/en/p/stream-deck-xl",
+	// 			label: "Stream Deck XL",
+	// 		},
+	// 	];
+	// }
 	
 }
 
@@ -100,6 +146,9 @@ type ActionType =
 type CountdownControlSettings = {
     action: ActionType;
     value?: number; 
+
+    // For Example of dynamically updating the inspector
+    // product?: string
 };
 
 const actionDisplayMap: Record<ActionType, string> = {
