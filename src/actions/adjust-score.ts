@@ -2,138 +2,183 @@ import streamDeck, { action, DidReceiveSettingsEvent, KeyDownEvent, SingletonAct
 import { EventEmitter } from 'events';
 import socket from '../websocket/socket';
 
+
+
+
 @action({ UUID: "com.esportsdash.esportsdash-controller.adjustscore" })
 export class AdjustScore extends SingletonAction<CounterSettings> {
-    private static instances: AdjustScore[] = [];
     public static eventEmitter = new EventEmitter();
     private team?: string;
-    private pollingInterval?: NodeJS.Timeout;
 
     constructor() {
         super();
-        AdjustScore.instances.push(this);
 
-                // Setting Button Title/Status based on socket connection
-                socket.on('connect', () => {
-                    this.updateButtonTitle(true);
-                });
-                socket.on('disconnect', () => {
-                    this.updateButtonTitle(false);
-                });
+        // Setting Button Title/Status based on socket connection
+        socket.on('connect', () => {
+            this.updateConnectionState(true);
+        });
+        socket.on('disconnect', () => {
+            this.updateConnectionState(false);
+        });
+
+
     }
 
-    private updateButtonTitle(isConnected: boolean): void {
+
+
+    private updateConnectionState(isConnected: boolean): void {
         this.actions.forEach(action => {
-			action.setImage(isConnected ? '' : 'imgs/actions/disconnected.png');
+            action.setImage(isConnected ? '' : 'imgs/actions/disconnected.png');
         });
     }
 
-    private async _fetchTeamLogoUrl(team: string): Promise<string> {
-        const response = await fetch(`http://localhost:8080/getValue?path=teams.team${team}.teamLogoUrl`);
-        return response.text();
-    }
-
-    private async _fetchImageAsBase64(url: string): Promise<string> {
-        const response = await fetch(url);
-        const arrayBuffer = await response.arrayBuffer();
-        return `data:image/png;base64,${Buffer.from(arrayBuffer).toString('base64')}`;
-    }
-
-
-    private async setTeamIcon(team: string, action: any): Promise<void> {
+    private async fetchTeamData(team: string): Promise<Partial<TeamData>> {
         try {
-            const teamLogoUrl = await this._fetchTeamLogoUrl(team);
-            const base64Image = await this._fetchImageAsBase64(teamLogoUrl.trim());
-            await action.setImage(base64Image);
+            // Fetch all necessary team data
+            const [scoreResponse, nameResponse, logoUrlResponse] = await Promise.all([
+                fetch(`http://localhost:8080/getValue?path=teams.team${team}.teamScore`),
+                fetch(`http://localhost:8080/getValue?path=teams.team${team}.teamName`),
+                fetch(`http://localhost:8080/getValue?path=teams.team${team}.teamLogoUrl`)
+            ]);
 
-            // emitting event to 'itself' to update
-            AdjustScore.eventEmitter.emit(`logoUpdated:${team}`, teamLogoUrl);
+            const scoreText = await scoreResponse.text();
+            const teamName = await nameResponse.text();
+            const logoUrl = await logoUrlResponse.text();
+
+            return {
+                score: scoreText ? Number(scoreText) : 0,
+                name: teamName,
+                logoUrl: logoUrl.trim()
+            };
         } catch (error) {
-            streamDeck.logger.error(`Failed to set team icon for team ${team}:`, error);
+            streamDeck.logger.error(`Failed to fetch data for team ${team}:`, error);
+            throw error;
         }
     }
 
-    private async updateButtonState(ev: any, score?: number | null, teamName?: string): Promise<void> {
-        const { team, includeOptions } = ev.payload.settings;
-
-        streamDeck.logger.debug(`DEBUG: Updating button state for team ${team}, score: ${score}, teamName: ${teamName}`);
-
+    private async fetchImageAsBase64(url: string): Promise<string> {
         try {
-            // Use provided values or fall back to stored settings
-            const displayScore = score ?? ev.payload.settings.count ?? 0;
-            const displayName = teamName ?? ev.payload.settings.teamName;
-
-            // Build title based on includeOptions
-            let title = '';
-            if (includeOptions?.includes('includeName') && displayName) {
-                console.log("displayName: ", displayName);
-                title += `${displayName}\n`;
-            }
-            if (includeOptions?.includes('includeScore')) {
-                title += `${displayScore}`;
-            }
-
-            await ev.action.setTitle(title);
-
-            // Update settings to keep track of current state
-            const settings = ev.payload.settings;
-            settings.count = displayScore;
-            settings.teamName = displayName;
-            await ev.action.setSettings(settings);
-
+            const response = await fetch(url);
+            const arrayBuffer = await response.arrayBuffer();
+            return `data:image/png;base64,${Buffer.from(arrayBuffer).toString('base64')}`;
         } catch (error) {
-            streamDeck.logger.error(`Failed to update button state for team ${team}:`, error);
-            await ev.action.setTitle('Error\n\nCheck\nLogs');
+            streamDeck.logger.error(`Failed to fetch image from ${url}:`, error);
+            throw error;
         }
     }
 
-    private async initializeButtonState(ev: any): Promise<void> {
-        const { team, includeOptions, operation } = ev.payload.settings;
+    private buildButtonTitle(settings: CounterSettings, score?: number, teamName?: string): string {
+        const { includeOptions } = settings;
+        const displayScore = score ?? settings.count ?? 0;
+        const displayName = teamName ?? settings.teamName;
+
+        let title = '';
+
+        if (includeOptions?.includes('includeName') && displayName) {
+            title += `${displayName}\n`;
+        }
+
+        if (includeOptions?.includes('includeScore')) {
+            title += `${displayScore}`;
+        }
+
+        return title;
+    }
+
+
+    private async setButtonImage(action: any, settings: CounterSettings, logoUrl?: string): Promise<void> {
+        const { team, includeOptions, operation } = settings;
+
+        try {
+            if (includeOptions?.includes('includeLogo') && team && logoUrl) {
+                const base64Image = await this.fetchImageAsBase64(logoUrl);
+                await action.setImage(base64Image);
+            } else {
+                // Set default button image based on operation
+                let imagePath = 'imgs/actions/counter/button@2x.png';
+                if (operation === 'increment') {
+                    imagePath = 'imgs/actions/counter/button-positive@2x.png';
+                } else if (operation === 'decrement') {
+                    imagePath = 'imgs/actions/counter/button-negative@2x.png';
+                }
+                await action.setImage(imagePath);
+            }
+        } catch (error) {
+            streamDeck.logger.error(`Failed to set button image:`, error);
+        }
+    }
+
+
+    private async updateButtonState(ev: any, teamData?: Partial<TeamData>): Promise<void> {
+        const { action, payload } = ev;
+        const settings = payload.settings;
+        const { team } = settings;
 
         if (!team) {
-            await ev.action.setTitle('Select Team');
+            await action.setTitle('Select Team');
             return;
         }
 
         try {
-            let score: number | undefined;
-            let teamName: string | undefined;
+            // Update settings with new data
+            if (teamData?.score !== undefined) settings.count = teamData.score;
+            if (teamData?.name !== undefined) settings.teamName = teamData.name;
 
-            // Fetch initial data regardless of display options to ensure we have the data
-            const scoreResponse = await fetch(`http://localhost:8080/getValue?path=teams.team${team}.teamScore`);
-            const scoreText = await scoreResponse.text();
-            score = scoreText ? Number(scoreText) : 0;
+            // Update button title
+            const title = this.buildButtonTitle(settings, teamData?.score, teamData?.name);
+            await action.setTitle(title);
 
-            const nameResponse = await fetch(`http://localhost:8080/getValue?path=teams.team${team}.teamName`);
-            teamName = await nameResponse.text();
-
-            // Set appropriate button image based on operation mode
-            if (!includeOptions?.includes('includeLogo')) {
-                if (operation === 'increment') {
-                    await ev.action.setImage('imgs/actions/counter/button-positive@2x.png');
-                } else if (operation === 'decrement') {
-                    await ev.action.setImage('imgs/actions/counter/button-negative@2x.png');
-                } else {
-                    await ev.action.setImage('imgs/actions/counter/button@2x.png');
-                }
-            } else {
-                await this.setTeamIcon(team, ev.action);
+            // Update button image if logo URL is provided
+            if (teamData?.logoUrl && settings.includeOptions?.includes('includeLogo')) {
+                await this.setButtonImage(action, settings, teamData.logoUrl);
             }
 
-            // Update the button state with fetched data
-            await this.updateButtonState(ev, score, teamName);
+            // Save settings
+            await action.setSettings(settings);
         } catch (error) {
-            streamDeck.logger.error(`Failed to initialize button state for team ${team}:`, error);
-            await ev.action.setTitle('Error\n\nCheck\nLogs');
+            streamDeck.logger.error(`Failed to update button state for team ${team}:`, error);
+            await action.setTitle('Error\n\nCheck\nLogs');
         }
     }
+
+
+    private setupEventListeners(ev: WillAppearEvent<CounterSettings> | DidReceiveSettingsEvent<CounterSettings>): void {
+        const { team } = ev.payload.settings;
+        if (!team) return;
+
+        socket.on('updateMatchData', (data: MatchUpdate) => {
+            if (data.type === 'teamUpdate' && data.teams) {
+                Object.entries(data.teams).forEach(([teamKey, teamData]: [string, Partial<TeamData>]) => {
+                    if (teamData.teamNumber === team || teamKey === `team${team}`) {
+
+                        if (typeof teamData.teamScore !== 'undefined') {
+                            this.updateButtonState(ev, { score: teamData.teamScore });
+                        }
+
+                        if (typeof teamData.teamLogoUrl !== 'undefined') {
+                            this.updateButtonState(ev, { logoUrl: teamData.teamLogoUrl });
+                        }
+
+                        if (typeof teamData.teamName !== 'undefined') {
+                            this.updateButtonState(ev, { name: teamData.teamName });
+                        }
+
+                    }
+                }
+                );
+            }
+
+        });
+
+    }
+
 
     override async onWillAppear(ev: WillAppearEvent<CounterSettings>): Promise<void> {
         const { team, includeOptions } = ev.payload.settings;
 
-        if(!socket.connected) {
+        if (!socket.connected) {
             ev.action.showAlert();
-            this.updateButtonTitle(false);
+            this.updateConnectionState(false);
             return;
         }
 
@@ -142,39 +187,25 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
             await ev.action.setTitle('No team');
             return;
         }
+
         this.team = team;
 
         try {
-            // Initial state setup
-            await this.initializeButtonState(ev);
+            // Fetch initial team data
+            const teamData = await this.fetchTeamData(team);
 
+            // Update button state with fetched data
+            await this.updateButtonState(ev, teamData);
 
-            if (includeOptions?.includes('includeLogo')) {
-                await this.setTeamIcon(team, ev.action);
-            }
-
-
-            AdjustScore.eventEmitter.on(`logoUpdated:${team}`, async (logoUrl: string) => {
-                if (includeOptions?.includes('includeLogo')) {
-                    const base64Image = await this._fetchImageAsBase64(logoUrl.trim());
-                    await ev.action.setImage(base64Image);
-                }
-            });
-
-            // Update event listeners in onWillAppear
-            AdjustScore.eventEmitter.on(`scoreUpdated:${team}`, async (score: number) => {
-                await this.updateButtonState(ev, score, ev.payload.settings.teamName);
-            });
-
-            AdjustScore.eventEmitter.on(`nameUpdated:${team}`, async (teamName: string) => {
-                await this.updateButtonState(ev, ev.payload.settings.count, teamName);
-            });
-
+            // Setup event listeners
+            this.setupEventListeners(ev);
         } catch (error) {
             streamDeck.logger.error(`Failed to initialize button for team ${team}:`, error);
+            await ev.action.setTitle('Error\n\nCheck\nLogs');
             await ev.action.setImage('imgs/actions/counter/button@2x.png');
         }
     }
+
 
     override async onKeyDown(ev: KeyDownEvent<CounterSettings>): Promise<void> {
         const { settings } = ev.payload;
@@ -192,17 +223,16 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
         try {
             const response = await fetch(`http://localhost:8080/api/${settings.operation}?team=${settings.team}`);
             const { score } = await response.json() as { score: number };
-            settings.count = score;
-            await ev.action.setSettings(settings);
-            AdjustScore.eventEmitter.emit(`scoreUpdated:${settings.team}`, score);
+
         } catch (error) {
             ev.action.showAlert();
             streamDeck.logger.error(`Error updating score for team ${settings.team}:`, error);
         }
     }
 
+
     override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<CounterSettings>): Promise<void> {
-        const { team, includeOptions, operation } = ev.payload.settings;
+        const { team } = ev.payload.settings;
 
         if (!team) {
             await ev.action.setTitle('Select Team');
@@ -210,25 +240,26 @@ export class AdjustScore extends SingletonAction<CounterSettings> {
         }
 
         try {
-            // Always initialize the button state when settings change
-            await this.initializeButtonState(ev);
+            // Update the team property
+            this.team = team;
+
+            // Fetch fresh data and update button
+            const teamData = await this.fetchTeamData(team);
+            await this.updateButtonState(ev, teamData);
+
+            // Update event listeners for the new team
+            this.setupEventListeners(ev);
         } catch (error) {
             streamDeck.logger.error(`Error applying settings:`, error);
             ev.action.showAlert();
         }
     }
 
+
     override async onWillDisappear(ev: WillDisappearEvent<CounterSettings>): Promise<void> {
-        if (this.pollingInterval) {
-            clearInterval(this.pollingInterval);
-        }
-        if (this.team) {
-            AdjustScore.eventEmitter.removeAllListeners(`scoreUpdated:${this.team}`);
-            AdjustScore.eventEmitter.removeAllListeners(`logoUpdated:${this.team}`);
-            AdjustScore.eventEmitter.removeAllListeners(`nameUpdated:${this.team}`);
-        }
-        AdjustScore.instances = AdjustScore.instances.filter(instance => instance !== this);
     }
+
+
 }
 
 type CounterSettings = {
@@ -238,3 +269,29 @@ type CounterSettings = {
     operation?: string;
     includeOptions: string[];
 };
+
+interface TeamData {
+    teamName: string;
+    teamInfo: string;
+    teamLogo: string;
+    teamLogoUrl: string;
+    teamScore: number;
+    teamColor: string;
+    teamGroup: string;
+    players: any[];
+    teamNumber: string;
+
+    score: number;
+    name: string;
+    logoUrl: string;
+
+}
+
+
+interface MatchUpdate {
+    type: 'teamUpdate';
+    teams: {
+        [key: string]: TeamData;
+    };
+    timestamp: number;
+}

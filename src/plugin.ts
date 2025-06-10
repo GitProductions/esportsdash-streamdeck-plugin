@@ -11,6 +11,7 @@ import { SelectTeam } from './actions/select-team';
 import { SetScore } from './actions/set-score';
 
 import { CountdownControls } from './actions/countdown-controls';
+import { CountdownClock } from './actions/countdown-clock';
 
 import socket from './websocket/socket';
 
@@ -25,7 +26,10 @@ streamDeck.actions.registerAction(new UpdateMatch());
 streamDeck.actions.registerAction(new WindowControls());
 streamDeck.actions.registerAction(new SetTeamName());
 streamDeck.actions.registerAction(new SelectTeam());
+
+
 streamDeck.actions.registerAction(new CountdownControls());
+streamDeck.actions.registerAction(new CountdownClock());
 
 // SelectGameConfig action will be simiiar to above where it fetches names of available game configs and then lets user choose
 
@@ -73,66 +77,66 @@ socket.on('teamManager', (data) => {
 
 
 // When updated match data comes from the server, update the Stream Deck
-socket.on('updateMatchData', (data: MatchUpdate) => {
-    streamDeck.logger.info('Received match data update:', data);
+// socket.on('updateMatchData', (data: MatchUpdate) => {
+//     streamDeck.logger.info('Received match data update:', data);
 
-    // emit globally for all actions to listen to
+//     // emit globally for all actions to listen to
 
-    // socket.emit('updateMatchDataReceived', {
-    //     received: true,
-    //     timestamp: Date.now(),
-    //     sender: 'streamDeck'
-    // });
+//     // socket.emit('updateMatchDataReceived', {
+//     //     received: true,
+//     //     timestamp: Date.now(),
+//     //     sender: 'streamDeck'
+//     // });
 
 
-    // taking full 'teamUpdate' and splitting into individual team updates.. 
-    // we should be data.type = teamScore, teamName etc.. teamUpdate can be when doing the WHOLE team on select maybe?
-    if (data.type === 'teamUpdate' && data.teams) {
-        Object.entries(data.teams).forEach(([teamKey, teamData]: [string, TeamData]) => {
-            AdjustScore.eventEmitter.emit('teamUpdate', {
-                teamNumber: teamData.teamNumber,
-                changes: teamData
-            });
+//     // taking full 'teamUpdate' and splitting into individual team updates.. 
+//     // we should be data.type = teamScore, teamName etc.. teamUpdate can be when doing the WHOLE team on select maybe?
+//     if (data.type === 'teamUpdate' && data.teams) {
+//         Object.entries(data.teams).forEach(([teamKey, teamData]: [string, TeamData]) => {
+//             AdjustScore.eventEmitter.emit('teamUpdate', {
+//                 teamNumber: teamData.teamNumber,
+//                 changes: teamData
+//             });
 
-            if (typeof teamData.teamScore !== 'undefined') {
-                AdjustScore.eventEmitter.emit(`scoreUpdated:${teamData.teamNumber}`,
-                    teamData.teamScore
-                );
-            }
+//             if (typeof teamData.teamScore !== 'undefined') {
+//                 AdjustScore.eventEmitter.emit(`scoreUpdated:${teamData.teamNumber}`,
+//                     teamData.teamScore
+//                 );
+//             }
 
-            if (typeof teamData.teamLogoUrl !== 'undefined') {
-                AdjustScore.eventEmitter.emit(`logoUpdated:${teamData.teamNumber}`,
-                    teamData.teamLogoUrl
-                );
-            }
+//             if (typeof teamData.teamLogoUrl !== 'undefined') {
+//                 AdjustScore.eventEmitter.emit(`logoUpdated:${teamData.teamNumber}`,
+//                     teamData.teamLogoUrl
+//                 );
+//             }
 
-            if (typeof teamData.teamName !== 'undefined') {
-                AdjustScore.eventEmitter.emit(`nameUpdated:${teamData.teamNumber}`,
-                    teamData.teamName
-                );
-            }
+//             if (typeof teamData.teamName !== 'undefined') {
+//                 AdjustScore.eventEmitter.emit(`nameUpdated:${teamData.teamNumber}`,
+//                     teamData.teamName
+//                 );
+//             }
             
-        });
+//         });
 
-    } 
-
-
+//     } 
 
 
 
-    socket.emit('roundTrip', {
-        received: true,
-        timestamp: Date.now(),
-        sender: 'streamDeck'
-    });
 
 
-    // socket.on('scoreUpdate', (data) => {
-    //     streamDeck.logger.info('Received score update:', data);
-    //     console.log('Received score update:', data);
+//     socket.emit('roundTrip', {
+//         received: true,
+//         timestamp: Date.now(),
+//         sender: 'streamDeck'
+//     });
 
-    // });
-});
+
+//     // socket.on('scoreUpdate', (data) => {
+//     //     streamDeck.logger.info('Received score update:', data);
+//     //     console.log('Received score update:', data);
+
+//     // });
+// });
 
 
 
