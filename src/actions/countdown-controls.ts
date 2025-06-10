@@ -209,6 +209,6 @@ const actionDisplayMap: Record<ActionType, string> = {
     'pause': 'Pause\nCountdown',
     'reset': 'Reset\nCountdown',
     'togglevisibility': 'Toggle\nVisibility',
-    'add': 'Add Time',
-    'subtract': 'Subtract Time'
+    'add': 'Add',
+    'subtract': 'Subtract'
 };
