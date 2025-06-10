@@ -132,12 +132,28 @@
 				}
 			]
 		},
-				{
+		{
 			"Name": "Countdown Controls",
 			"UUID": "com.esportsdash.esportsdash-controller.countdowncontrols",
 			"Icon": "imgs/actions/windows/windows",
 			"Tooltip": "Countdown Controls - Esports Dash",
 			"PropertyInspectorPath": "ui/countdown-controls.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/button",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Countdown Clock",
+			"UUID": "com.esportsdash.esportsdash-controller.countdownclock",
+			"Icon": "imgs/actions/windows/windows",
+			"Tooltip": "Countdown Clock - Esports Dash",
+			"PropertyInspectorPath": "ui/countdown-clock.html",
 			"Controllers": [
 				"Keypad"
 			],
