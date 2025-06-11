@@ -1,6 +1,6 @@
 {
 	"Name": "EsportsDash Controller",
-	"Version": "0.1.0.4",
+	"Version": "0.1.1.0",
 	"Author": "EsportsDash",
 	"Actions": [
 		{
@@ -122,6 +122,38 @@
 			"Icon": "imgs/actions/setteam/set-team",
 			"Tooltip": "Choose a Team Name",
 			"PropertyInspectorPath": "ui/set-team-name.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/button",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Countdown Controls",
+			"UUID": "com.esportsdash.esportsdash-controller.countdowncontrols",
+			"Icon": "imgs/actions/windows/windows",
+			"Tooltip": "Countdown Controls - Esports Dash",
+			"PropertyInspectorPath": "ui/countdown-controls.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/actions/counter/button",
+					"TitleAlignment": "middle"
+				}
+			]
+		},
+		{
+			"Name": "Countdown Clock",
+			"UUID": "com.esportsdash.esportsdash-controller.countdownclock",
+			"Icon": "imgs/actions/windows/windows",
+			"Tooltip": "Countdown Clock - Esports Dash",
+			"PropertyInspectorPath": "ui/countdown-clock.html",
 			"Controllers": [
 				"Keypad"
 			],

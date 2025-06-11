@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+  <title>Countdown Controls</title>
+  <meta charset="utf-8" />
+  <script src="https://sdpi-components.dev/releases/v3/sdpi-components.js"></script>
+  <link rel="stylesheet" href="./resources/css/spdi.css">
+</head>
+
+<body>
+  <div class="sdpi-heading">Countdown Controls</div>
+
+
+  <sdpi-item label="Select">
+    <sdpi-select setting="action" id="actionSelect" placeholder="Please choose an option">
+      <option value="start"> Start Countdown </option>
+      <option value="pause"> Pause Countdown </option>
+      <option value="stop"> Stop Countdown </option>
+      <option value="reset"> Reset Countdown </option>
+      <option value="togglevisibility"> Toggle Visibility </option>
+      <option value="add"> Add Time </option>
+      <option value="subtract"> Subtract Time </option>
+    </sdpi-select>
+  </sdpi-item>
+
+  <sdpi-item label="Seconds" id="valueItem">
+    <sdpi-textfield setting="value" id="valueInput" placeholder="Enter time in seconds" type="number" min="0"
+      max="3600"></sdpi-textfield>
+  </sdpi-item>
+
+
+  <!-- <sdpi-item label="Product">
+    <sdpi-select setting="product" datasource="getProducts" loading="Fetching products..." placeholder="Please select">
+    </sdpi-select>
+  </sdpi-item> -->
+
+
+  <!-- Conditionally show the 'value/seconds' input when adding or subtracting  -->
+  <script type="text/javascript">
+    const actionSelect = document.querySelector('[setting="action"]');
+    const valueItem = document.getElementById('valueItem');
+    function updateValueItemVisibility() {
+      if (actionSelect && valueItem) {
+        valueItem.style.visibility = (actionSelect.value === "add" || actionSelect.value === "subtract") ? '' : 'hidden';
+      }
+    }
+    actionSelect.addEventListener("valuechange", updateValueItemVisibility);
+    // Initial state
+    updateValueItemVisibility();
+  </script>
+
+</body>
+
+</html>
