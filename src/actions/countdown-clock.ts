@@ -73,17 +73,18 @@ export class CountdownClock extends SingletonAction<CountdownClockSettings> {
 
     private handleCountdownData = (data: CountdownData): void => {
         const { countdown } = data.data;
+        
 
         const minutes = Math.floor(countdown / 60);
         const seconds = countdown % 60;
         const formattedCD = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 
         
-
+        // Cant we just target this specific action with this.action or similar??  
+        // Do we have to store ev and then reuse it??
         this.actions.forEach(action => {
             action.setTitle(`${formattedCD}`);
             streamDeck.logger.info(`Setting title for action ${action} to ${countdown}`);
-
             // streamDeck.logger.info(`Action settings:`, action.getSettings());
         });
     }
